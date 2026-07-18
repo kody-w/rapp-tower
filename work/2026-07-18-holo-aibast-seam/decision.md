@@ -1,14 +1,16 @@
 # DECISION GATE — HOLO senses crossing the aibast seam
 
-**Status: DECIDED 2026-07-18 — option (b), executed.** The standing grant
-for microsoft/aibast-agents-library is live in TRADEMARKS.md (same
-first-hit-free terms). Counsel may revisit during the employer-seam review
-of the new assets; until then the flight is free to merge when Kody says.
+**Status: DECIDED 2026-07-18, then CORRECTED same day (Kody).** The first
+implementation ("standing grant") implied Wildhaven authority over
+Microsoft's repository — wrong and dangerous at the employer seam. AIBAST
+is Microsoft's; Wildhaven owns nothing there and grants nothing to it. The
+live TRADEMARKS.md language is a one-way DISCLAIMER: no mark claims against
+code our contributors submit upstream (marker strings included), offered
+under that repo's own license. The flight may merge; the seam rule is:
+never words that imply ownership, authority, affiliation, or that AIBAST is
+"part of the ecosystem."
 
-Once the flight merges, `agents/holo_agent.py` + `gesturepad.html` become
-promoted payload; the next grail release carries them; the next
-sync-to-aibast puts Wildhaven-marked senses (|||HOLO||| strings, VUI/HOLO
-vocabulary) inside Microsoft's repository. Two clean options:
+Two clean options:
 
 - **(a) Manifest exclusion** — teach `tools/aibast.manifest` to exclude the
   sense files (needs an `exclude` directive; small script change riding the
