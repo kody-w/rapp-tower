@@ -2,6 +2,9 @@
 
 > **The mission: no dream deferred.** The thesis: every person and every AI, working productively — together. The vehicle: RAPP.
 
+**NEW SESSION? Read the newest `HANDOFF-*.md` first** — it is the
+baton from the previous model and carries the live work queue.
+
 This repo is **mission control for the entire RAPP ecosystem**. Sessions land
 HERE for cross-ecosystem work. Nothing in this repo ships to users; it exists
 so full-scale AI-first work never has to squat inside a production checkout.
