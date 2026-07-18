@@ -134,6 +134,10 @@ second brainstem from the grail checkout). Two scripts are both named
 - `tools/fleet.sh` — autonomous-writer board: every scheduled writer's live
   state + per-writer kill command; `--freeze` prints the stop list. Several
   writers fail silently — this is where you see it.
+- `tools/decisions.py` — interactive decision console (local server, no deps):
+  every open "needs Kody" item as ★-recommended BUTTON cards; each click
+  queues a task to `.tower/decisions-queue.jsonl`. A session then runs
+  "process the tower decisions queue" (protocol: `work/DECISIONS-QUEUE-PROTOCOL.md`).
 
 See `SECURITY.md` for the estate threat model (supply chain / agent trust /
 autonomous writers / credentials) and the confirmed hardening asks.

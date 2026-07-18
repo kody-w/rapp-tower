@@ -105,7 +105,8 @@ pre{font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre;overflow-x:auto}
   <div class="tile ${c_leak}"><div class="lbl">Needs Kody</div><div class="val">${n_dec}</div></div>
 </div>
 
-<div class="focus"><h2>▲ Top priority — act now</h2><ul>${TOP}</ul></div>
+<div class="focus"><h2>▲ Top priority — act now</h2><ul>${TOP}</ul>
+<div style="margin-top:10px;font-size:clamp(12px,1.1vw,16px);color:var(--fg)">🗳️ Decide all ${n_dec} open items with buttons: run <code style="background:rgba(127,127,127,.2);padding:1px 6px;border-radius:5px">tools/decisions.py</code> → <b>localhost:7788</b></div></div>
 
 <div class="detail">
   <div class="card"><h3>Checkouts &amp; tripwires</h3><pre>${CO_E}</pre></div>
