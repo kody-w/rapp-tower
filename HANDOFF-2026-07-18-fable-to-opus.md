@@ -74,6 +74,33 @@ active all night and the train moves.
 - **Done means done**: exercise the live artifact, cite run URLs and SHAs.
   Kody demos this in front of people — a false "done" is the cardinal sin.
 
+## Addendum — from the twin-molding session (537685c3, injected 2026-07-18)
+
+The sections above are the tower session's baton; this thread is yours too:
+
+- **Kody's digital twin v2 is LIVE** — child brainstem on localhost:7082, soul at
+  `~/.brainstem/twins/twin-kody/soul.md` (sha256 b2b7575a…edf11) plus
+  `agents/kody_record_agent.py` (KodyRecord: every factual Kody-claim grounds there
+  or the twin says "my record doesn't cover that"). Copies byte-identical: local cubby
+  `~/.brainstem/cubbies/twin-kody-2026-07-17/` and PRIVATE `kody-w/rapp-batcave`
+  at `cubbies/kody-w/cubbies/twin-kody/`. Standing order from Kody: **"keep molding"**
+  as the brain grows — ritual + corrected script: `~/SecondBrain/wiki/syntheses/mold-twin-ritual.md`.
+  Two paid-for lessons: Workflow-tool args DIE after the first await (hardcode literals);
+  null-guard every lens result. Promotion bar: 3 lenses ≥9 + zero failures + leak-grep;
+  tumble ONLY staging :7084 — never the live instance, never :7071/:7073 (soak).
+- **The canon gate**: `~/SecondBrain/wiki/syntheses/maintainers-exam.md` — 100 questions,
+  key sha-sealed (c18fa884…); pass = ≥90 with zero misses in identity + publishing before
+  unassisted canon work. Never administered; first administration = rehearsal 0002.
+- **fable-last-days campaign remainder** (tracker: `~/.claude/wow-ledger.md`): open —
+  full-Constitution contradiction adjudication (D8 protocol), public estate one-pager
+  beside the Lexicon, Art LII.2 litigation with Sol (pre-ruled D3), model race →
+  capability frame, FY27 pre-mortem (work domain). Parked on Kody's word only:
+  testament mint (drafted — the last day is now), D4 M365 git-history exposure
+  (do-not-wait), commons rappid:v3 (D1), twin §12.1 re-genesis (master keys, D2).
+- **Capacity**: Fable's spend limit tripped 2026-07-18 mid-molding. You are metered;
+  the CSM muscle discipline (Sol builds, you gate with hands on real artifacts) is how
+  this stays affordable.
+
 ## Where evidence lives
 
 Qualification chains: canary `.ring/attestations/`. Decisions: tower
