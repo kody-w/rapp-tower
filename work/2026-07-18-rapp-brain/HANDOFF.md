@@ -1,5 +1,21 @@
 # RAPP Second Brain — convergence handoff (Fable → Opus, 2026-07-18)
 
+> ## ✅ RESOLVED 2026-07-18 (Kody: "collapse to rapp-second-brain, archive rapp-ecosystem-brain")
+>
+> - **Canonical = `kody-w/rapp-second-brain`** (public) — the mature build:
+>   ~330 repo cards already crawled, `COORDINATION.md` many-writer protocol,
+>   `tools/{shard,claim,save-card,rebuild}.sh`, `reduce.yml` CI index. **Secret-
+>   scanning + push-protection ENABLED.**
+> - **`kody-w/rapp-ecosystem-brain` ARCHIVED** (read-only) with a README redirect
+>   to the canonical repo. It was only a skeleton — nothing unique lost.
+> - **Private hemisphere `kody-w/rapp-second-brain-private`** exists (private).
+>   ⚠️ GitHub secret-scanning is **NOT available** on it (private repo, no
+>   Advanced Security) — so the tower's `tools/guard.sh` is its **only** secret
+>   gate. Wire guard.sh into that repo's push path/CI; do not rely on GitHub.
+> - **Leak hygiene fixed + findings** (below "Leak findings" section).
+>
+> The rest of this doc is the original convergence analysis — kept for context.
+
 Kody asked Fable to plan a crawl of the whole RAPP ecosystem (known + unknown,
 public + private, no leaks) into a two-hemisphere second brain, as its own
 public repo, handed to Opus. **While planning, I found parallel Opus sessions
@@ -122,3 +138,29 @@ cards (pointers, never values):
 - Do NOT copy `sensitive/denylist.json` into any brain repo.
 - Do NOT ingest secret values into either hemisphere — pointers only.
 - Do NOT let both public brain repos run in parallel — pick one.
+
+## Leak findings from the collapse leak-check (2026-07-18)
+
+Running the tower `guard.sh` over the canonical public brain surfaced two
+denylist terms. Recorded so the brain team fixes the systemic gap:
+
+1. **`WorkIQ`** (work-data) — was in `brain/cards/repo_kody-w_cowork-cookbook-rapp.json`
+   + `brain/inventory.json`. **Redacted** in the current tree (pushed to
+   rapp-second-brain). History retains it; a purge is a Kody-decision.
+   - **Root cause / new finding**: the SOURCE repo `kody-w/cowork-cookbook-rapp`
+     is **PUBLIC and contains "WorkIQ" 6× in its own README** — a pre-existing
+     work-data exposure the brain merely mirrored. Kody-decision: scrub or
+     privatize that repo (same class as the localtoolsdev leak, lower severity).
+2. **`aibast`** (6 files) — these are **legitimate public repo NAMES**
+   (`aibast-agents-library`, `rapp-shape-aibast` are real public kody-w repos)
+   and AIBAST is publicly referenceable as "Microsoft's distro of the Brainstem"
+   (confident-host register). **NOT redacted** — redacting real public repo names
+   would corrupt the brain.
+
+**Systemic fix (brain team)**: the brain's `tools/leaktest.sh` reported CLEAN
+while `WorkIQ` was present — its redaction list does **not** include the tower
+denylist. Wire the brain's ingest/CI gate to call the tower `guard.sh`
+(`RAPP_TOWER=~/Documents/GitHub/rapp-tower`), and give it a **public-repo-name
+allowlist** so `aibast`-as-public-repo-name isn't a false positive while
+`aibast`-as-work-context still trips. Off-machine CI won't have the denylist —
+store it as an encrypted Actions secret or run the name-layer on-machine only.

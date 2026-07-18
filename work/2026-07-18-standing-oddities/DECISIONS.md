@@ -31,3 +31,11 @@ say whether it's deliberate. Adjudicating one = edit its status line here
 | 17 | Two **contradictory trademark docs**: `rapp-train/TRADEMARKS.md` (Wildhaven LLC; "RAPP"/brainstem free) vs `RAPP/TRADEMARK.md` ((c) Kody; both claimed) | read both | NEEDS-KODY — reconcile owner + scope (`work/2026-07-18-legal-posture/`) |
 | 18 | Grail + all four ring repos are **public with no LICENSE** (all-rights-reserved) | `gh api .../license` | NEEDS-KODY — license via the train |
 | 19 | Self-hosted Actions runner for a `microsoft/*` repo = RCE on the root-of-trust laptop (also oddity #10) | launchctl | NEEDS-KODY — decommission or relocate off this machine |
+
+### Added by the brain-collapse leak-check (2026-07-18)
+
+| # | Standing state | Evidence | Status |
+|---|---|---|---|
+| 20 | Public repo `kody-w/cowork-cookbook-rapp` contains work-data term **WorkIQ** 6× in its README | brain-collapse guard.sh | NEEDS-KODY — scrub or privatize (pre-existing work-data exposure; brain copy redacted) |
+| 21 | `rapp-second-brain-private` can't use GitHub secret-scanning (private, no GHAS) — tower `guard.sh` is its ONLY secret gate | gh api 422 | RECORDED — wire guard.sh into that repo's push path |
+| 22 | Brain `leaktest.sh` redaction list ≠ tower denylist (WorkIQ slipped) | brain-collapse | NEEDS-BRAIN-TEAM — wire tower guard.sh into brain CI + public-repo-name allowlist |
