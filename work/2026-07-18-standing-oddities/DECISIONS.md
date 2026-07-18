@@ -39,3 +39,17 @@ say whether it's deliberate. Adjudicating one = edit its status line here
 | 20 | Public repo `kody-w/cowork-cookbook-rapp` contains work-data term **WorkIQ** 6× in its README | brain-collapse guard.sh | ✅ RESOLVED 2026-07-18 — NOT an exposure: WorkIQ used **nominatively** (Microsoft product name) with a trademark disclaimer, ZERO customer data. No scrub needed. Denylist flags the product *name*; real concern is customer *data*. |
 | 21 | `rapp-second-brain-private` can't use GitHub secret-scanning (private, no GHAS) — tower `guard.sh` is its ONLY secret gate | gh api 422 | RECORDED — wire guard.sh into that repo's push path |
 | 22 | Brain `leaktest.sh` redaction list ≠ tower denylist (WorkIQ slipped) | brain-collapse | NEEDS-BRAIN-TEAM — wire tower guard.sh into brain CI + public-repo-name allowlist |
+
+### Added by the close-out estate secret sweep (2026-07-18)
+
+The full `secrets-watch.sh` sweep found 3 MORE public leaks (all Google API keys,
+open for months). Files wiped by Fable; keys need Kody's revocation.
+
+| # | Standing state | Evidence | Status |
+|---|---|---|---|
+| 23 | `kody-w/mars-barn-opus` leaked a Google API key in a committed `.playwright-profile/` browser cache | secrets-watch #1 (2026-04-02) | ✅ FILE WIPED (dir purged from all 526 commits, force-pushed) — **NEEDS-KODY: revoke the key in Google Cloud Console + close the alert** |
+| 24 | `kody-w/gemini-cli-tips` leaked a Google API key in `.claude/commands/gemini-power.md` | secrets-watch #1 (2025-11-26) | ✅ KEY REDACTED across all history (force-pushed) — **NEEDS-KODY: revoke + close alert** |
+| 25 | `kody-w/TheMatrix` leaked a Google API key in `.knowledge-bases/kody-voice/QUICK_IMAGE_PROMPTS.md` | secrets-watch #1 (2025-11-21) | ✅ KEY REDACTED across all history (force-pushed) — **NEEDS-KODY: revoke + close alert** |
+
+Note: the fast-parallel sweep variant returned a FALSE 0 (parallel gh calls that
+errored counted as "no alert"). The sequential `secrets-watch.sh` is authoritative.
