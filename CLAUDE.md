@@ -22,19 +22,27 @@ editing shared checkouts in place.
 
 | Path | Repo | Role | Rule |
 |---|---|---|---|
-| `~/.brainstem/src` | kody-w/rapp-installer | THE GRAIL — live production install | READ-ONLY. Push URL is `DISABLED-…` on purpose. NEVER re-enable outside a conscious release (RUNBOOK §5) |
+| `~/.brainstem/src` | kody-w/rapp-installer | THE GRAIL — live production install | READ-ONLY. Push URL is `DISABLED-…` on purpose; `checkouts.sh` red-banners if not (FR-2). **LIVE SOLE-COPY STATE inside** (`.brainstem_data/`, plus `~/.brainstem/twins/`, `cubbies/`) — `tools/backup-memory.sh` before ANY surgery (FR-7); never rm/re-clone/reset |
 | `~/Documents/GitHub/rapp-canary` | kody-w/rapp-canary | Train entry ring + hub tooling | Contested by parallel sessions — treat as read-only reference; do branch work in scratch clones |
 | `~/Documents/GitHub/rapp-{nightly,alpha,beta}` | rings | Promotion targets | Only ever receive `promote_ring.py` output |
-| `~/Documents/GitHub/RAPP` | kody-w/RAPP | Reference distro (lts) | Often carries another session's WIP — scratch-clone for changes; `shape/next` branch = Beta siding |
-| `~/Documents/GitHub/RAR` | kody-w/RAR | Agent registry — THE active checkout | `~/RAR` is stale; never touch it |
-| `~/Documents/GitHub/aibast-agents-library` | kody-w fork of microsoft/… | aibast sync vehicle | PRs to Microsoft are MANUAL (SAML); never push microsoft/* |
+| `~/Documents/GitHub/RAPP` | kody-w/RAPP | Reference distro (lts) | Often carries another session's WIP **and a cron writer every 30 min** (`tools/sim/loop_orchestrator.sh`) — dirty ≠ session; scratch-clone for changes; `shape/next` branch = Beta siding |
+| `~/Documents/GitHub/RAR` | kody-w/RAR | Agent registry — THE active checkout | `~/RAR` is stale; never touch it. Dirty/behind state is deliberate-until-adjudicated (standing-oddities #3) |
+| `~/Documents/GitHub/rapp-map` | kody-w/rapp-map | Estate map + drift governance (spec mirror, neurons, conformance, waivers) | Normal edits fine; `tools/drift.sh` reads it |
+| `~/Documents/GitHub/aibast-agents-library` | kody-w fork of microsoft/… | Work sync vehicle | PRs to Microsoft are MANUAL (SAML); never push microsoft/* |
 | `~/Documents/GitHub/rapp-train` | kody-w/rapp-train | Deck + playbook + llms.txt | Normal edits fine |
 | `~/Documents/GitHub/rapp-tower` | kody-w/rapp-tower | THIS repo | Work products in `work/YYYY-MM-DD-topic/` |
 
-Live local services: production brainstem `:7071` (from ~/.brainstem — do not
-disturb) · canary soak `:7073` (`rapp-canary/.ring/tools/soak.sh`) · flights
-`:7075` (`~/.rapp-flight/`) · parallel sessions sometimes hold ports — check
-`lsof` before assuming yours.
+Live local services — **port-open ≠ healthy; identity/auth via
+`tools/triage.sh`**: production brainstem `:7071` (manual orphan launch —
+restart is `~/.local/bin/brainstem`, FR-1) · canary soak `:7073`
+(`~/.brainstem-soak/render/`, double-bound with a work Azure-Functions host
+on `*:7073`; a second func host on `:7072` — FR-6, never kill listeners you
+didn't start) · flights from `~/.rapp-flight/` on `:7075+` (four flights
+exist; some dead) · local branch flights (`.ring/tools/flight.sh`) default
+`:7081+` · parallel sessions/experiments hold more ports (`:7082` has run a
+second brainstem from the grail checkout). Two scripts are both named
+`flight.sh` — `.ring/tools/` (local branch flights) vs `.ring/pages/`
+(public sandbox flights); don't confuse them.
 
 ## The iron laws (non-negotiable)
 
@@ -55,12 +63,50 @@ disturb) · canary soak `:7073` (`rapp-canary/.ring/tools/soak.sh`) · flights
 7. **Publishing boundary**: this repo is PRIVATE — work/customer context may
    land here, but never flows from here into public kody-w repos.
 
-## Tower tools
+## Flight rules & release polls
 
-- `tools/checkouts.sh` — one-screen status of every registered checkout
-  (branch, dirty, ahead/behind, who-holds-what).
+- **`FLIGHT_RULES.md`** — pre-decided if-then for emergencies (loss of
+  brainstem, grail push-capable, bad version shipped, red oracle, contested
+  checkout, port conflicts, pre-demo reds, publishing boundary). Read it
+  before improvising under pressure.
+- **`GO-NOGO.md`** — grail-release poll + post-release closeout. Copy into
+  `work/` per release; `tools/release_gate.sh` must say GO before
+  `grail_gate.py --export-to`.
+- **`RECOVERY.md`** — if this laptop dies: what survives, what doesn't,
+  ordered restore.
 
-## Work products
+## Tower tools (the situational displays)
+
+- `tools/checkouts.sh` — one-screen checkout truth + grail push tripwire +
+  memory-backup age + holds.
+- `tools/triage.sh` — service **identity/health/auth** per port (not just
+  LISTEN), flights, brainstem doctor with the verified restart command.
+- `tools/train.sh` — train position: per-ring tip/VERSION/lock/attestation
+  with ATTESTED / MOVED / NO-ATTN verdicts.
+- `tools/pages.sh` — Pages-live vs origin parity per public surface
+  (LIVE-CURRENT / LIVE-BEHIND / DEPLOY-RED); byte-check for rapp-train.
+- `tools/release_gate.sh` — pre-release GO/NO-GO: grail-main containment +
+  soak-evidence checks; `--override` requires a decision record and still
+  exits non-zero.
+- `tools/drift.sh` — drift-governance surface: oracle conclusions, open
+  drift issues, waiver countdowns, baseline staleness.
+- `tools/backup-memory.sh` / `tools/backup-status.sh` — sole-copy state
+  archiver (step 0 of any brainstem surgery) + machine durability board.
+- `tools/holds.sh` — parallel-session holds: `claim/release/list/check`
+  (state in `.tower/`, gitignored). Claim before touching a contested
+  checkout, a ring, or a release window; release on handover.
+- `tools/leakcheck.sh` + `sensitive/denylist.json` — the publishing-boundary
+  gate (FR-9). Run against any tree headed for a public repo. The denylist
+  is private-canonical; it never leaves the tower.
+
+## Work products & the decision log
 
 Cross-repo plans, audits, reports, drafts: `work/YYYY-MM-DD-<topic>/`.
 Commit them — the tower's history is the ecosystem's decision log.
+
+**Three event classes MUST get a `work/` entry** (template:
+`work/TEMPLATE-decision.md`): ring promotions/qualifications/releases;
+anything touching the grail or its runtime (launchd, tokens, push URLs);
+any "leave it broken/stale on purpose" call. Standing intentional oddities
+live in `work/2026-07-18-standing-oddities/` — adjudicate there, don't
+re-derive intent from forensics.
