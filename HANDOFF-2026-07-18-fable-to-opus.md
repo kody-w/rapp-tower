@@ -81,3 +81,17 @@ Qualification chains: canary `.ring/attestations/`. Decisions: tower
 English there). Ports: 7071 prod · 7073 soak · 7075/7076 flights.
 
 Carry it well. The mission is three words.
+
+## The other half of the baton (added 2026-07-18, second Fable session)
+
+This doc is the ESTATE/TRAIN half. The CUSTOMER/WORK/DOCTRINE half lives in the
+one brain: `~/SecondBrain/wiki/syntheses/opus-takeover-2026-07-18.md` — read it in
+the same first 10 minutes. It carries: the post-Fable doctrine reshape (Opus =
+cortex+spine, Sol REFUTE-review mandatory, novel canon → precedence chain → Kody),
+the Kody-only pending calls (testament minting, FSI qa-gate, FY27 packet send,
+Scout RFC go, RED BINDER successor conflict, docket D4), and the drivable work
+queue (t2p security-review fix pass is the first commission). The brain itself
+(`~/SecondBrain`, 106 pages, index-first, local-only) is the map of Kody's whole
+work world — customers, engagements, contradiction ledger, people. Auto-memory in
+home-dir sessions points there; in THIS workdir it does not auto-load — read both
+memory estates manually.
