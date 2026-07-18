@@ -233,4 +233,20 @@ memory estates manually.
   by file, claim scope, rebase, never hand-merge aggregates) — MULTIPLE Opuses will
   push it in parallel; follow it. The private tier's specifics stay private (here).
 
+**Brain convergence (final Fable session) — read `work/2026-07-18-rapp-brain/HANDOFF.md`:**
+- There are **TWO** public brain repos now — `rapp-ecosystem-brain` (above) AND
+  `rapp-second-brain`. That's fragmentation — **collapse to ONE** before fanning
+  out (rec: keep `rapp-ecosystem-brain`'s CONCURRENCY scaffold, use the better
+  name). No private hemisphere exists yet — create `*-private` with
+  secret-scanning ON at creation.
+- **The seam both plans depend on IS the tower**: run `tools/guard.sh <tree>`
+  (secrets + denylist + secret-filename gate; `RAPP_TOWER=~/Documents/GitHub/rapp-tower`)
+  as a pre-push hook AND a GitHub Action — you can't trust N autonomous writers to
+  run it locally. **Never copy `sensitive/denylist.json` into a brain repo.**
+- **Private hemisphere seeds non-empty**: this session's `SECURITY.md`,
+  `work/2026-07-18-tower-blindspot-r2/`, `tools/fleet.sh`, standing-oddities +
+  legal-posture ARE the first private cards (credential inventory as POINTERS,
+  never values; trust boundaries; autonomous-writer map). Census verified live:
+  **340 public / 141 private** kody-w repos.
+
 Fable out. The mission is three words.
