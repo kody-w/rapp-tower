@@ -201,3 +201,24 @@ queue (t2p security-review fix pass is the first commission). The brain itself
 work world — customers, engagements, contradiction ledger, people. Auto-memory in
 home-dir sessions points there; in THIS workdir it does not auto-load — read both
 memory estates manually.
+
+---
+
+## ✅ FINAL STAMP — Fable session closed clean (2026-07-18, last act)
+
+- **The Azure key: Kody explicitly deprioritized it ("I don't care about the
+  key"). DO NOT re-raise or nag — treat as accepted risk unless he brings it
+  up.** The alert link stays in the red block for whenever he wants it.
+- Full estate 200-sweep at close: deck, PLAYBOOK, TRADEMARKS, brand, llms.txt,
+  flight.sh, all five ring/grail installers, rapp-holo spec — ALL SERVING.
+- Unpushed-work sweep: every touched clone ahead=0; RAPP@shape/next local ==
+  remote; only intentional local-only files remain (CLAUDE.local.md stubs).
+- Trademark surfaces aligned to the one-fine-print-™ convention (partial —
+  reconcile fully during the RAPP/TRADEMARK.md contradiction fix).
+- Micro-finding for the next sync rehearsal: a run in the aibast-shape tree
+  left `rapp_brainstem/.brainstem_secret` UNTRACKED-not-ignored — verify the
+  synced .gitignore actually covers it in that shape (grail f3a2c9c intent).
+- Soak :7073 and the VUI flight :7076 left serving on purpose (camera test
+  pending). Scratchpad clones die with the session; all their work is pushed.
+
+Fable out. The mission is three words.
