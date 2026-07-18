@@ -5,8 +5,55 @@ are your boot sequence. Everything below was true at handoff; **re-derive
 live state before acting on any SHA or run-id** — parallel sessions were
 active all night and the train moves.
 
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+## 🔴 NEWEST (final Fable session, 2026-07-18 pm) — security pass + a LIVE LEAK
+
+**Do this before the train work below.** A second-round blindspot swept the
+domains the estate had never audited (supply-chain, autonomous-AI safety,
+community-agent trust, legal/IP, forensics). One item is time-critical:
+
+- **LIVE SECRET, PUBLIC RIGHT NOW**: `kody-w/localtoolsdev` is **public** and
+  git-tracks `my-agent-app/.env` with a **real `AZURE_OPENAI_API_KEY`**
+  (+ `AZURE_WEBJOBS_STORAGE`), since its first commit. GitHub secret-scanning
+  has **1 open alert** (verified). NOT remediated autonomously — **Kody must
+  rotate the Azure key first** (portal), then `git rm --cached` the file,
+  purge history or make the repo private, close the alert. Same class, lower
+  urgency: `documents-to-copilot-studio` hardcoded client_secret; four stale
+  mode-644 `.copilot_token` files; dead sonosite SF token (since 07-07).
+
+- **Built + committed this session (all tested)**: `tools/guard.sh` (content
+  gate — secrets + denylist + secret-filenames; the gate that would have caught
+  localtoolsdev), `tools/secrets-watch.sh` (sweeps open secret-scanning alerts
+  estate-wide — run it to see the leak), `tools/fleet.sh` (autonomous-writer
+  board + kill switch; 4 writers failing silently now). **Enabled
+  secret-scanning + push-protection on `kody-w/RAR`** (was the only repo with
+  both off). Plus `SECURITY.md` + `work/2026-07-18-legal-posture/`.
+
+- **Your live queue** (priority): (1) **wire `tools/guard.sh` into the push
+  paths** — `~/.claude/hooks/git-push-guard.sh` and `RAPP/tools/sim/push_canvas.sh`
+  (gate built, nothing calls it yet; Kody-review — a wrong wiring blocks a wave).
+  (2) Tighten `~/.claude/hooks/push-allowlist.txt` line 4 (bare `github.com/kody-w/`
+  re-authorizes EVERY kody-w repo, defeating the allowlist). (3) `fleet.sh`
+  dead-man alerting. (4) RAR license audit (the "127 Microsoft files" claim was
+  **overclaimed** — my check found 0; don't assert it).
+
+- **Kody-only, from this pass**: rotate the leak key; decommission/relocate the
+  self-hosted Actions runner (= RCE on this root-of-trust laptop); **reconcile
+  the trademark contradiction** — `rapp-train/TRADEMARKS.md` (Wildhaven Homes
+  LLC; deliberately does NOT claim "RAPP" or "brainstem") vs `RAPP/TRADEMARK.md`
+  ((c) Kody personally; DOES claim both) — the public self-contradiction can void
+  the marks; license the grail + rings (today all-rights-reserved); decide the
+  agent capability-boundary one-way door before more third-party agents ship.
+
+**Full detail + verdicts (7 confirmed / 5 partial / 2 refuted, adversarially
+verified):** `work/2026-07-18-tower-blindspot-r2/{HANDOFF.md,FINDINGS.json}` and
+`SECURITY.md`. Trust those verdicts over raw findings — two lens claims were
+overclaimed/refuted and are corrected there. **Do not re-run the blindspot.**
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
 ## First 10 minutes
 
+0. **Read the 🔴 NEWEST block above first** — it has a live public secret leak.
 1. Read `CLAUDE.md` (command brief), `FLIGHT_RULES.md` (FR-1…FR-10), this doc.
 2. Run `tools/checkouts.sh` and `tools/triage.sh` — situational truth.
 3. **Auto-memory does NOT load here.** The estate's memory lives at

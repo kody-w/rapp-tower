@@ -2,6 +2,30 @@
 
 > **The mission: no dream deferred.** The thesis: every person and every AI, working productively — together. The vehicle: RAPP.
 
+<!-- ───────────────────────────────────────────────────────────────────── -->
+> ## 🔴 ACTIVE HANDOFF — read before doing anything else (2026-07-18)
+>
+> A Fable session ran two blindspot passes and built the tower out, then handed
+> off mid-execution. **Whoever you are (Opus, or the next session): open
+> [`work/2026-07-18-tower-blindspot-r2/HANDOFF.md`](work/2026-07-18-tower-blindspot-r2/HANDOFF.md) now.** It has, in order:
+>
+> 1. **🔴 A LIVE SECRET LEAK** — `kody-w/localtoolsdev` is a **public** repo
+>    tracking a real `AZURE_OPENAI_API_KEY` (GitHub alert open). Kody must
+>    **rotate the Azure key first**; full runbook in the handoff. This was NOT
+>    remediated autonomously (rotate = Azure; privatize/purge = consequential).
+> 2. The 7 confirmed / 5 partial / 2 refuted round-2 findings **with verdicts** —
+>    do not act on raw `FINDINGS.json`; two lens claims were overclaimed/refuted.
+> 3. **Next steps in priority order** — chiefly: wire `tools/guard.sh` into the
+>    push paths (the content gate is built but not yet called), and the
+>    Kody-decision shortlist (runner decommission, trademark reconciliation,
+>    license the grail, agent capability-boundary one-way door).
+>
+> Also see `SECURITY.md` (threat model) and `work/2026-07-18-legal-posture/`.
+> Done this session: `tools/guard.sh`, `tools/secrets-watch.sh`, `tools/fleet.sh`;
+> secret-scanning enabled on RAR. **Do not re-run the blindspot — continue from
+> the handoff.**
+<!-- ───────────────────────────────────────────────────────────────────── -->
+
 **NEW SESSION? Read the newest `HANDOFF-*.md` first** — it is the
 baton from the previous model and carries the live work queue.
 
@@ -99,8 +123,20 @@ second brainstem from the grail checkout). Two scripts are both named
   (state in `.tower/`, gitignored). Claim before touching a contested
   checkout, a ring, or a release window; release on handover.
 - `tools/leakcheck.sh` + `sensitive/denylist.json` — the publishing-boundary
-  gate (FR-9). Run against any tree headed for a public repo. The denylist
-  is private-canonical; it never leaves the tower.
+  gate (FR-9): denylisted-name check. Run against any tree headed for a public
+  repo. The denylist is private-canonical; it never leaves the tower.
+- `tools/guard.sh` — the CONTENT gate (secrets + denylist + secret-filenames)
+  for anything bound for a public repo. Wraps leakcheck; the gate that would
+  have caught the localtoolsdev `.env` leak. Wire it into push paths.
+- `tools/secrets-watch.sh` — sweeps OPEN GitHub secret-scanning alerts across
+  every kody-w repo + flags public repos with scanning off. Run scheduled so
+  alerts stop firing into a void.
+- `tools/fleet.sh` — autonomous-writer board: every scheduled writer's live
+  state + per-writer kill command; `--freeze` prints the stop list. Several
+  writers fail silently — this is where you see it.
+
+See `SECURITY.md` for the estate threat model (supply chain / agent trust /
+autonomous writers / credentials) and the confirmed hardening asks.
 
 ## Work products & the decision log
 
