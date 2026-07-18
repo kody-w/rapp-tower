@@ -12,7 +12,7 @@ BUTTON cards. Clicking a button writes the choice to .tower/decisions-queue.json
 Local only, no deps (Python stdlib). The tower is PRIVATE — this never publishes.
 Run:  tools/decisions.py   then open  http://localhost:7788
 """
-import json, os, datetime
+import json, os, datetime, html
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 TOWER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -93,11 +93,20 @@ def page():
     for it in ITEMS:
         chosen = ch.get(it["id"], {}).get("label")
         btns = []
-        for o in it["opts"]:
+        for oi, o in enumerate(it["opts"]):
             sel = "sel" if chosen == o["label"] else ""
             rec = "rec" if o.get("rec") else ""
             star = "★ " if o.get("rec") else ""
-            btns.append(f'<button class="opt {rec} {sel}" onclick="choose(\'{it["id"]}\',{json.dumps(o["label"])},{json.dumps(o["action"])},{json.dumps(it["title"])})">{star}{o["label"]}</button>')
+            # data-* attributes (HTML-escaped) + a delegated listener — avoids the
+            # quote-nesting that broke inline onclick with em-dashes/quotes in labels.
+            btns.append(
+                f'<button class="opt {rec} {sel}" '
+                f'data-id="{html.escape(it["id"], quote=True)}" '
+                f'data-idx="{oi}" '
+                f'data-label="{html.escape(o["label"], quote=True)}" '
+                f'data-action="{html.escape(o["action"], quote=True)}" '
+                f'data-title="{html.escape(it["title"], quote=True)}">'
+                f'{star}{html.escape(o["label"])}</button>')
         status = f'<span class="done">queued → {chosen}</span>' if chosen else '<span class="pend">no decision yet</span>'
         cards.append(f'<div class="card" id="c_{it["id"]}"><div class="t">{it["title"]} {status}</div><div class="ctx">{it["ctx"]}</div><div class="opts">{"".join(btns)}</div></div>')
     qn = len(ch)
@@ -130,10 +139,24 @@ code{background:rgba(127,127,127,.15);padding:1px 6px;border-radius:5px}
 <div class="bar"><div class="hint">Queued to <code>.tower/decisions-queue.jsonl</code>. Then tell a Claude session: <b>“process the tower decisions queue”</b>.</div>
 <div class="hint" id="stat"></div></div>
 <script>
-async function choose(id,label,action,title){
-  const r=await fetch('/choose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,label,action,title})});
-  if(r.ok){document.getElementById('stat').textContent='✓ queued: '+label;location.reload();}
+async function choose(b){
+  const d=b.dataset;
+  b.textContent='… saving';
+  try{
+    const r=await fetch('/choose',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:d.id,label:d.label,action:d.action,title:d.title})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    document.getElementById('stat').textContent='✓ queued: '+d.label;
+    location.reload();
+  }catch(e){
+    document.getElementById('stat').textContent='✗ error: '+e.message+' (is the server still running?)';
+    b.textContent='⚠ retry';
+  }
 }
+document.addEventListener('click',function(e){
+  const b=e.target.closest('.opt');
+  if(b) choose(b);
+});
 </script></body></html>"""
 
 class H(BaseHTTPRequestHandler):
