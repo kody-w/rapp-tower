@@ -39,8 +39,8 @@ generate(){
 
   if echo "$DRIFT" | grep -q 'STALE'; then s_drift="STALE"; c_drift="y"; else s_drift="OK"; c_drift="g"; fi
 
-  # leak: the localtoolsdev row in the decision ledger
-  if grep -qhi 'LIVE LEAK' "$TOWER"/work/*/DECISIONS.md 2>/dev/null; then s_leak="OPEN"; c_leak="r"; else s_leak="CLEAR"; c_leak="g"; fi
+  # leak: an unresolved LIVE-LEAK row (still NEEDS-KODY) in the decision ledger
+  if grep -hi 'LIVE LEAK' "$TOWER"/work/*/DECISIONS.md 2>/dev/null | grep -q 'NEEDS-KODY'; then s_leak="OPEN"; c_leak="r"; else s_leak="CLEAR"; c_leak="g"; fi
 
   n_dec="$(grep -hcE '^\| .*NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null | paste -sd+ - | bc 2>/dev/null || echo 0)"
   n_dec="${n_dec:-0}"
