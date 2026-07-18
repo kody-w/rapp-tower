@@ -1,6 +1,6 @@
 # CLAUDE.md — the RAPP Control Tower
 
-> **The mission: every person and every AI can work productively with RAPP — together.**
+> **The mission: no dream deferred.** The thesis: every person and every AI, working productively — together. The vehicle: RAPP.
 
 This repo is **mission control for the entire RAPP ecosystem**. Sessions land
 HERE for cross-ecosystem work. Nothing in this repo ships to users; it exists
