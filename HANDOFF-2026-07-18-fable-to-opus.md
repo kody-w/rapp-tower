@@ -53,6 +53,33 @@ active all night and the train moves.
 5. **Human-only queue** (do not do these; remind, don't nag): patent .ics
    one-click import (Apr 5 2027 hard deadline), hardware keys on kody-w,
    counsel items in wildhaven-ceo `action-items.md`, VUI camera test.
+6. **`fix/probe-pytest` (rapp-canary) — verify + merge.** `device_probe.sh`
+   ran pytest in the install venv, which the sacred installer never populates
+   with pytest → FALSE fail on every real machine (mis-read earlier as an
+   auth-required test — it is NOT; fresh-clone credential-less container = 261
+   passed). Fix pip-installs pytest first, skips cleanly if offline. Pushed,
+   NOT merged. Container `rapp-probeverify` was verifying end-to-end at handoff:
+   `docker logs rapp-probeverify` → if the two suite checks PASS, `git merge
+   --no-ff fix/probe-pytest` to canary main, watch preflight.
+
+**Also landed this session (device / twin / landgrab):** zero-config
+`device_probe.sh` (pull-mode device testing → reports to a GitHub issue;
+self-hosted runner push-mode retired) — merged to canary main. Flight-deck
+port-collision false-✅ fixed (merged; `rapp-train#1` filed for its diverged
+copy). `flight/project-twin` = `.twin/` project-resident AI twins over `/chat`
+(`twin.sh` + `TwinConnector`; canary-twin verified live on :7091; keeps
+`FLIGHT.json` — never merge to main). Battlestation reachable via
+`ssh kodysbattlestation` (localadmin, keyed — **no VNC needed**); real Windows
+join one-liner verified serving v0.6.16. **Landgrab:** 15 public `rapp-*` repos
+(brainstem, twin, twin-in-residence, flight-deck, flight, rings, cortex,
+spinal-cord, nervous-system, hippocampus, sdk, cli, docs, trademarks, platform)
+— clean Apple-style branding (**one fine-print ™ line, NEVER ™-per-mention —
+Kody emphatic**), each carrying `DISCLAIMER.md` + MIT `LICENSE`; usage policy
+live on public `rapp-trademarks`. `kody-w/rapp-ip` (PRIVATE) = builder IP
+portfolio. `wildhaven-ceo/rapp-brain/` = CEO second brain + `skill.md` (Molly
+uses it by asking plain questions) + `today/rapp-deadlines.md` (3 calendar
+events STAGED — Google Calendar OAuth expired, needs Kody reconnect). Full
+delta: rapp-canary auto-memory `session-handoff-2026-07-18.md`.
 
 ## The rules that will save you (cost of learning them: one night)
 
