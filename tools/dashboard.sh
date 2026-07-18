@@ -21,8 +21,9 @@ TRAIN="$(run train.sh)"
 FLEET="$(run fleet.sh)"
 DRIFT="$(run drift.sh)"
 
-# Decision queue: every NEEDS-KODY row from the standing-oddities ledger.
-QUEUE="$(grep -h 'NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null \
+# Decision queue: every NEEDS-KODY table ROW from the standing-oddities ledger
+# (leading pipe = table row; skips prose that merely mentions NEEDS-KODY).
+QUEUE="$(grep -hE '^\| .*NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null \
   | sed 's/^| *[0-9]* *| *//; s/ *| *[^|]*| *NEEDS-KODY *[—-]* */ → /; s/ *|$//' \
   | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' \
   | awk '{print "<li>" $0 "</li>"}')"
