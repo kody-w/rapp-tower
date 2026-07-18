@@ -158,7 +158,7 @@ delta: rapp-canary auto-memory `session-handoff-2026-07-18.md`.
 The sections above are the tower session's baton; this thread is yours too:
 
 - **Kody's digital twin v2 is LIVE** — child brainstem on localhost:7082, soul at
-  `~/.brainstem/twins/twin-kody/soul.md` (sha256 b2b7575a…edf11) plus
+  `~/.brainstem/twins/twin-kody/soul.md` (sha256 b2b7575aaf0701966a6c5fec5bd1637296397ae3cade9086108eaae543cedf11) plus
   `agents/kody_record_agent.py` (KodyRecord: every factual Kody-claim grounds there
   or the twin says "my record doesn't cover that"). Copies byte-identical: local cubby
   `~/.brainstem/cubbies/twin-kody-2026-07-17/` and PRIVATE `kody-w/rapp-batcave`
