@@ -1,6 +1,9 @@
 # DECISION GATE — HOLO senses crossing the aibast seam
 
-**Status: OPEN — decide before `feature/voice-gesturepad` merges to canary main.**
+**Status: DECIDED 2026-07-18 — option (b), executed.** The standing grant
+for microsoft/aibast-agents-library is live in TRADEMARKS.md (same
+first-hit-free terms). Counsel may revisit during the employer-seam review
+of the new assets; until then the flight is free to merge when Kody says.
 
 Once the flight merges, `agents/holo_agent.py` + `gesturepad.html` become
 promoted payload; the next grail release carries them; the next
