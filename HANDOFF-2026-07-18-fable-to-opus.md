@@ -115,7 +115,12 @@ self-hosted runner push-mode retired) — merged to canary main. Flight-deck
 port-collision false-✅ fixed (merged; `rapp-train#1` filed for its diverged
 copy). `flight/project-twin` = `.twin/` project-resident AI twins over `/chat`
 (`twin.sh` + `TwinConnector`; canary-twin verified live on :7091; keeps
-`FLIGHT.json` — never merge to main). Battlestation reachable via
+`FLIGHT.json` — never merge to main). **Now has PUBLIC/PRIVATE layers**
+(commit `1e596cb`): public `.twin/` (soul, agents, seed memories) travels &
+commits; `.twin/private/` (gitignored, on-device) layers over it —
+`private/soul.md` appended to public soul, `private/agents/*.py` override
+public, learned memory in `private/engine/`. Verified: private marker layered
+in, `.twin/private/` confirmed gitignored (won't travel). Battlestation reachable via
 `ssh kodysbattlestation` (localadmin, keyed — **no VNC needed**); real Windows
 join one-liner verified serving v0.6.16. **Landgrab:** 15 public `rapp-*` repos
 (brainstem, twin, twin-in-residence, flight-deck, flight, rings, cortex,
