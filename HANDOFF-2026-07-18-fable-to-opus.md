@@ -221,4 +221,16 @@ memory estates manually.
 - Soak :7073 and the VUI flight :7076 left serving on purpose (camera test
   pending). Scratchpad clones die with the session; all their work is pushed.
 
+**Two public artifacts shipped at the very end (build on these, don't rebuild):**
+- **Roadmap board** — kody-w/rapp-roadmap, live at https://kody-w.github.io/rapp-roadmap/ .
+  Multi-view (Board / Timeline-Gantt / Executive) over `board.json`+`roadmap.json`
+  (CORS-open static API, `rapp-board/1.0`). Move a card by editing `board.json`.
+- **Ecosystem-brain plan** — kody-w/rapp-ecosystem-brain (PUBLIC). The plan to
+  crawl the full estate (~479 repos, public+private, known+unknown) into a
+  TWO-TIER second brain: public brain (that repo) + private brain (a private tier
+  you designate). Hard rule: **visibility is the boundary — nothing private crosses
+  into public.** `CONCURRENCY.md` there is the parallel-writer protocol (partition
+  by file, claim scope, rebase, never hand-merge aggregates) — MULTIPLE Opuses will
+  push it in parallel; follow it. The private tier's specifics stay private (here).
+
 Fable out. The mission is three words.
