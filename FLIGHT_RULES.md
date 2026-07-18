@@ -120,3 +120,13 @@ that will land in a public `kody-w/*` repo. A hit is a full stop — git
 history in a public repo is unredactable in practice (iron law 7; the
 public conformance suite checks only a synthetic name and cannot catch
 real ones).
+
+## FR-10 · Real Copilot tokens outside `~/.brainstem`
+
+Token copies are permitted in exactly two places: the soak render (its
+purpose is authenticated soak) and ONE actively-tested flight render. On
+any other sandbox, or on landing a flight: delete the copy
+(`rm <render>/rapp_brainstem/.copilot_token`) before walking away. Sweep:
+`find ~/.rapp-flight ~/.brainstem-soak -name .copilot_token`. A forgotten
+plaintext token in a disposable directory is how a disposable directory
+stops being disposable.

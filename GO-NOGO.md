@@ -39,3 +39,6 @@ into `docs/` → commit with qualification run URL → push → 7-VM preflight �
 | C5 | Downgrade rehearsed **as a user would run it** (FR-3 syntax, sandbox HOME, lands on pinned tag) | rehearsal transcript | ☐ |
 | C6 | Tag pushed; `work/YYYY-MM-DD-release-vX.Y.Z/` entry committed to the tower | this file, filled in | ☐ |
 | C7 | Holds released: `tools/holds.sh release grail-release` | `holds.sh list` empty | ☐ |
+
+- [ ] **Honesty check**: release notes state the soak population truthfully
+      (today that is: the maintainer's own machines — say so until it isn't).
