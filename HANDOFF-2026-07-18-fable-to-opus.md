@@ -51,6 +51,21 @@ verified):** `work/2026-07-18-tower-blindspot-r2/{HANDOFF.md,FINDINGS.json}` and
 overclaimed/refuted and are corrected there. **Do not re-run the blindspot.**
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
+## 🧠 NEW MISSION — build the RAPP second brain (many Opuses, parallel)
+
+Two-hemisphere ecosystem brain is LIVE and seeded; now deep-card it.
+- **Public**: github.com/kody-w/rapp-second-brain — plan in `OPUS-HANDOFF.md`,
+  concurrency protocol in `COORDINATION.md`. Seeded: 340 public repos carded
+  (discovery found 339 public vs rapp-map's 85 — the map covered a quarter).
+- **Private**: kody-w/rapp-second-brain-private (never make public).
+- **Parallel-safe by construction**: per-card files, CI-derived indexes
+  (`reduce.yml` is the sole INDEX/graph writer), `tools/{shard,claim,save-card}.sh`.
+  MANY Opuses: `tools/shard.sh <N> <i>` for your slice, then `save-card.sh`.
+- **Leak boundary is CODE**: public crawler redacts private names at ingest;
+  `tools/leaktest.sh` verifies (was CLEAN). Never push private names/secrets
+  to the public repo.
+- Do Phase 2 deep-carding (SCHEMA.md) + Phase 3 (`second_brain_agent.py`).
+
 ## First 10 minutes
 
 0. **Read the 🔴 NEWEST block above first** — it has a live public secret leak.
