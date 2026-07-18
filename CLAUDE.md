@@ -1,5 +1,7 @@
 # CLAUDE.md — the RAPP Control Tower
 
+> **The mission: every AI and every person can work productively with RAPP.**
+
 This repo is **mission control for the entire RAPP ecosystem**. Sessions land
 HERE for cross-ecosystem work. Nothing in this repo ships to users; it exists
 so full-scale AI-first work never has to squat inside a production checkout.
