@@ -87,30 +87,58 @@ def save_choice(rec):
         for r in ch.values():
             f.write(json.dumps(r) + "\n")
 
+# status (from the queue, set when a session processes it) -> badge label + css state
+def badge(status):
+    s = (status or "").lower()
+    if s.startswith("done"):     return ("✅ Done", "b-done")
+    if s.startswith("prepared"): return ("🚂 Prepared — rides the train", "b-work")
+    if s.startswith("drafted"):  return ("✍️ Drafted — your sign-off", "b-work")
+    if s.startswith("proposed"): return ("🗳️ Proposed — your pick", "b-work")
+    if s.startswith("queued") and status != "queued": return ("⏳ Queued — run fresh", "b-work")
+    if s == "queued":            return ("• Chosen — awaiting the AI", "b-open")
+    return ("• No decision yet", "b-open")
+
 def page():
     ch = load_choices()
-    cards = []
+    pending, done = [], []
     for it in ITEMS:
-        chosen = ch.get(it["id"], {}).get("label")
-        btns = []
-        for oi, o in enumerate(it["opts"]):
-            sel = "sel" if chosen == o["label"] else ""
-            rec = "rec" if o.get("rec") else ""
-            star = "★ " if o.get("rec") else ""
-            # data-* attributes (HTML-escaped) + a delegated listener — avoids the
-            # quote-nesting that broke inline onclick with em-dashes/quotes in labels.
-            btns.append(
-                f'<button class="opt {rec} {sel}" '
-                f'data-id="{html.escape(it["id"], quote=True)}" '
-                f'data-idx="{oi}" '
-                f'data-label="{html.escape(o["label"], quote=True)}" '
-                f'data-action="{html.escape(o["action"], quote=True)}" '
-                f'data-title="{html.escape(it["title"], quote=True)}">'
-                f'{star}{html.escape(o["label"])}</button>')
-        status = f'<span class="done">queued → {chosen}</span>' if chosen else '<span class="pend">no decision yet</span>'
-        cards.append(f'<div class="card" id="c_{it["id"]}"><div class="t">{it["title"]} {status}</div><div class="ctx">{it["ctx"]}</div><div class="opts">{"".join(btns)}</div></div>')
-    qn = len(ch)
-    return HTML.replace("{{CARDS}}", "".join(cards)).replace("{{N}}", str(len(ITEMS))).replace("{{Q}}", str(qn))
+        rec = ch.get(it["id"], {})
+        chosen = rec.get("label")
+        status = rec.get("status", "queued" if chosen else None)
+        blabel, bclass = badge(status)
+        is_done = (status or "").lower().startswith("done")
+        act = rec.get("action", "")
+        if is_done:
+            # completed card — dimmed, no buttons, shows the action taken
+            done.append(
+                f'<div class="card dim"><div class="t">✓ {html.escape(it["title"])} '
+                f'<span class="badge b-done">{blabel}</span></div>'
+                f'<div class="chosen">You chose: <b>{html.escape(chosen or "")}</b></div>'
+                f'<div class="acted">→ {html.escape(act)}</div></div>')
+        else:
+            btns = []
+            for o in it["opts"]:
+                sel = "sel" if chosen == o["label"] else ""
+                rc = "rec" if o.get("rec") else ""
+                star = "★ " if o.get("rec") else ""
+                btns.append(
+                    f'<button class="opt {rc} {sel}" '
+                    f'data-id="{html.escape(it["id"], quote=True)}" '
+                    f'data-label="{html.escape(o["label"], quote=True)}" '
+                    f'data-action="{html.escape(o["action"], quote=True)}" '
+                    f'data-title="{html.escape(it["title"], quote=True)}">'
+                    f'{star}{html.escape(o["label"])}</button>')
+            pnote = (f'<div class="acted pendact">→ next: {html.escape(act)}</div>' if chosen and act else '')
+            pending.append(
+                f'<div class="card"><div class="t">{html.escape(it["title"])} '
+                f'<span class="badge {bclass}">{blabel}</span></div>'
+                f'<div class="ctx">{html.escape(it["ctx"])}</div>'
+                f'<div class="opts">{"".join(btns)}</div>{pnote}</div>')
+    ph = (f'<h2 class="sec">⚡ Still needs you · {len(pending)}</h2>' + "".join(pending)) if pending else '<h2 class="sec">🎉 Nothing left needs you</h2>'
+    dh = (f'<h2 class="sec dimh">✅ Done · {len(done)}</h2>' + "".join(done)) if done else ''
+    return (HTML.replace("{{PENDING}}", ph).replace("{{DONE}}", dh)
+                .replace("{{N}}", str(len(ITEMS))).replace("{{D}}", str(len(done)))
+                .replace("{{P}}", str(len(pending))))
 
 HTML = """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🗼 Tower — Decisions</title><style>
@@ -127,16 +155,25 @@ h1{margin:0;font-size:clamp(20px,2.4vw,32px)}.sub{color:var(--mut)}
 .opt:hover{border-color:var(--acc)}
 .opt.rec{border-color:#2ea043}.opt.rec:before{}
 .opt.sel{background:var(--gb);border-color:var(--g);color:var(--g);font-weight:700}
-.done{color:var(--g);font-size:12px;font-weight:600;margin-left:8px}
-.pend{color:var(--mut);font-size:12px;margin-left:8px}
+.badge{font-size:11px;font-weight:700;margin-left:8px;padding:1px 8px;border-radius:20px;white-space:nowrap}
+.b-done{color:var(--g);border:1px solid #1f5c33;background:var(--gb)}
+.b-work{color:var(--y);border:1px solid #6b5410}
+.b-open{color:var(--mut);border:1px solid var(--bd)}
+.sec{font-size:15px;letter-spacing:.03em;margin:22px 0 10px;text-transform:uppercase}
+.dimh{color:var(--mut)}
+.card.dim{opacity:.6}
+.chosen{font-size:13px;margin-bottom:2px}
+.acted{color:var(--mut);font-size:13px}
+.pendact{margin-top:8px;color:var(--y)}
 .bar{position:sticky;bottom:0;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .hint{color:var(--mut);font-size:13px}
 code{background:rgba(127,127,127,.15);padding:1px 6px;border-radius:5px}
 </style></head><body>
-<header><div><h1>🗼 Decision console</h1><div class="sub">Click your choice per item — ★ is my recommendation. Each click queues a task for the AI.</div></div>
-<div class="sub">{{Q}}/{{N}} decided · private · local</div></header>
-{{CARDS}}
-<div class="bar"><div class="hint">Queued to <code>.tower/decisions-queue.jsonl</code>. Then tell a Claude session: <b>“process the tower decisions queue”</b>.</div>
+<header><div><h1>🗼 Decision console</h1><div class="sub">Your picks and what the AI did with them. ★ = my recommendation. Re-click any open item to change it.</div></div>
+<div class="sub">{{D}} done · {{P}} still need you · {{N}} total</div></header>
+{{PENDING}}
+{{DONE}}
+<div class="bar"><div class="hint">Queued to <code>.tower/decisions-queue.jsonl</code>. Re-run a Claude session with <b>“process the tower decisions queue”</b> after new picks.</div>
 <div class="hint" id="stat"></div></div>
 <script>
 async function choose(b){
