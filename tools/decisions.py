@@ -69,6 +69,26 @@ ITEMS = [
     {"label":"Leave it (private repo)","action":"Record accepting the tracked secret in the private documents-to-copilot-studio repo."}]},
 ]
 
+# ── openrappter morning decisions ──────────────────────────────────────────────
+# openrappter's agent runs each morning and writes the decisions it wants Kody to
+# sign off on (in this same item shape) to ~/.openrappter/tower-decisions.json.
+# They show as cards here alongside the estate items; your click queues the action.
+_OR_DECISIONS = os.path.join(os.path.expanduser("~"), ".openrappter", "tower-decisions.json")
+try:
+    with open(_OR_DECISIONS) as _f:
+        _od = json.load(_f)
+    _items = _od.get("items", _od) if isinstance(_od, dict) else _od
+    for _it in (_items or []):
+        if isinstance(_it, dict) and _it.get("id") and _it.get("opts"):
+            _it.setdefault("ctx", "")
+            _it["title"] = "🦖 " + str(_it.get("title", _it["id"]))
+            _it["_source"] = "openrappter"
+            ITEMS.append(_it)
+except FileNotFoundError:
+    pass
+except Exception:
+    pass
+
 def load_choices():
     d = {}
     if os.path.exists(QUEUE):
