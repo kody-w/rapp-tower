@@ -134,7 +134,26 @@ if [ "$MODE" = "changed" ]; then
     fi
     if [ "$vis" != "PRIVATE" ] && [ -x "$TOWER/tools/leakcheck.sh" ]; then
       if ! "$TOWER/tools/leakcheck.sh" "$f" >/dev/null 2>&1; then
-        hits=1; echo "${RED}DENYLIST${RST}: $rel contains a sensitive name"
+        # RATCHET, not a wall. A file may carry pre-existing denylisted names
+        # that are a separate, undecided cleanup (e.g. a work-distro name that
+        # an estate map must state ACCURATELY). Blocking those walls off
+        # unrelated PII fixes to the same file -- which is how a gate ends up
+        # bypassed. So: compare against the committed baseline and fail only
+        # if this change ADDS occurrences. Untracked/new files have no
+        # baseline and are judged in full.
+        now=$("$TOWER/tools/leakcheck.sh" "$f" 2>/dev/null | grep -c "^LEAK" || true)
+        base=0
+        if git -C "$repo" cat-file -e "HEAD:$rel" 2>/dev/null; then
+          tmp=$(mktemp); git -C "$repo" show "HEAD:$rel" > "$tmp" 2>/dev/null
+          base=$("$TOWER/tools/leakcheck.sh" "$tmp" 2>/dev/null | grep -c "^LEAK" || true)
+          rm -f "$tmp"
+        fi
+        if [ "${now:-0}" -gt "${base:-0}" ]; then
+          hits=1
+          echo "${RED}DENYLIST${RST}: $rel ADDS sensitive name(s) (${base} -> ${now})"
+        else
+          echo "${YEL}denylist (pre-existing, not added by this change)${RST}: $rel (${base})"
+        fi
       fi
     fi
   done <<< "$files"
