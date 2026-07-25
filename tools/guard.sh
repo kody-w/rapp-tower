@@ -67,6 +67,24 @@ if [ "$MODE" = "changed" ]; then
   # Range resolution, most-specific first: explicit range > unpushed commits
   # vs the tracked upstream > staged. Fail OPEN on range errors is wrong here:
   # if we cannot tell what is being pushed, we scan the index (fail closed).
+  # Two different rules, and conflating them makes the gate cry wolf:
+  #   SECRETS  -- never belong in ANY repo, public or private. Always checked.
+  #   DENYLIST -- the PUBLISHING boundary (customer/work names). Only meaningful
+  #               when the destination is PUBLIC. The tower itself is private and
+  #               is explicitly allowed to hold work context (CLAUDE.md), so
+  #               enforcing the denylist here would block the estate's own
+  #               decision log and train everyone to --no-verify.
+  # Fail closed on ambiguity: if visibility cannot be determined, treat as PUBLIC.
+  vis="PUBLIC"; vis_why="could not determine remote visibility — assuming public"
+  origin_url=$(git -C "$repo" remote get-url origin 2>/dev/null || true)
+  if [ -z "$origin_url" ]; then
+    vis="PUBLIC"; vis_why="no origin remote — assuming public"
+  else
+    slug=$(printf '%s' "$origin_url" | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
+    v=$(gh repo view "$slug" --json visibility --jq '.visibility' 2>/dev/null || true)
+    if [ -n "$v" ]; then vis="$v"; vis_why="origin $slug is $v"; fi
+  fi
+
   no_upstream=0
   if [ -z "$RANGE" ]; then
     up=$(git -C "$repo" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || true)
@@ -114,7 +132,7 @@ if [ "$MODE" = "changed" ]; then
     if [ "${c:-0}" -gt 0 ] 2>/dev/null; then
       hits=1; echo "${RED}SECRET${RST}: $rel ($c line(s) match a credential pattern)"
     fi
-    if [ -x "$TOWER/tools/leakcheck.sh" ]; then
+    if [ "$vis" != "PRIVATE" ] && [ -x "$TOWER/tools/leakcheck.sh" ]; then
       if ! "$TOWER/tools/leakcheck.sh" "$f" >/dev/null 2>&1; then
         hits=1; echo "${RED}DENYLIST${RST}: $rel contains a sensitive name"
       fi
@@ -123,10 +141,13 @@ if [ "$MODE" = "changed" ]; then
 
   if [ "$hits" -ne 0 ]; then
     echo "${RED}NO-GO${RST}: push blocked — secret or denylisted content in the diff (FR-9)."
-    echo "  reviewed $n changed file(s) over $label"
+    echo "  reviewed $n changed file(s) over $label  [$vis_why]"
     exit 1
   fi
+  scope="secrets + denylist"
+  [ "$vis" = "PRIVATE" ] && scope="secrets only (private destination — denylist N/A)"
   echo "${GRN}CLEAN${RST}: $n changed file(s) over $label — safe to push"
+  echo "  checked: $scope  [$vis_why]"
   exit 0
 fi
 

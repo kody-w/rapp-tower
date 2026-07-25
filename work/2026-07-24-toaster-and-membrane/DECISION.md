@@ -33,13 +33,14 @@ Running the full-tree gate over rapp-god surfaced something worse than a dead
 credential. **A public repo is publishing the customer roster it exists to
 redact:**
 
-`docs/components/RAPP-Bible/scripts/build_repo_pages.py`
-```python
-PII_PATTERNS = [... r"marriott", r"fujifilm", r"sonosite", r"bchydro",
-                    r"unilever", r"manpowergroup" ...] + [re.compile(r"\bMSC\b")]
-```
-Same roster in `scripts/mirror_sync.py` (`("sonosite", "example-co")`) and
-`tests/test_no_pii.py`.
+`docs/components/RAPP-Bible/scripts/build_repo_pages.py` line ~24 defines
+`PII_PATTERNS` as a literal list of **seven real customer/account names**
+(six regex literals plus one word-boundary acronym). The same roster appears in
+`scripts/mirror_sync.py` as redaction pairs (`(<customer>, "example-co")`) and
+in `tests/test_no_pii.py` as compiled patterns.
+
+*(The names are deliberately not reproduced here — read them from the file. This
+document is the decision log, not another copy of the roster.)*
 
 The sanitiser's denylist **is** the disclosure. This is exactly why the tower's
 own denylist is local-only and "never leaves the tower" — that principle is
