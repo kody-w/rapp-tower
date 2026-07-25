@@ -111,6 +111,6 @@ if [ "$tot_bread" -gt 0 ]; then
   echo "  make it tradable:  $TOASTER toast \$(bash $0 --raw-only | tr '\\n' ' ')"
 fi
 echo
-echo "${DIM}membrane 'none' = no chat-shaped endpoint, so the host cannot present as a"
-echo "uniform peer yet (rapp-neighborhood-protocol §3). That is the twin-chat"
-echo "adapter's job, and it is NOT built — do not read 'none' as 'broken'.${RST}"
+echo "${DIM}membrane 'none' = no chat-shaped endpoint, so the host cannot present as a
+uniform peer yet (rapp-neighborhood-protocol §3). Not a fault — an adapter that
+does not exist yet. Per-peer detail:  tools/twinchat.py probe${RST}"
