@@ -69,7 +69,10 @@ for entry in "${NEIGHBORHOODS[@]}"; do
       *)   membrane="${YEL}http $code${RST}" ;;
     esac
   else
-    membrane="${DIM}none${RST}"      # no chat-shaped endpoint => cannot be a peer yet
+    # No probe URL means no chat-shaped endpoint, so the host cannot present as
+    # a uniform peer yet. tools/twinchat.py is what turns this into "open" --
+    # `twinchat.py probe` reports per-peer detail.
+    membrane="${DIM}none${RST}"
   fi
 
   bread=0; toast=0; files=""
