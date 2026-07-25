@@ -192,3 +192,64 @@ cash.
   public `kody-w/rapp-toaster` as `toaster.py`). **Drift risk: two copies.**
   Reconcile to one before either is edited again.
 - `tools/guard.sh` — `--changed`, `--install-hook`, fail-closed first push.
+
+---
+
+## 5. Estate-wide PII wipe (2026-07-24, later)
+
+**Scoping first, because "wipe across 371 public repos" is how you corrupt an
+estate.** Code-searched all 10 denylist terms across every kody-w repo, then
+filtered to genuinely public destinations (the raw search covers private repos
+too — the tower itself was in the first result set).
+
+Raw: 411 hits. Public: 215 across 42 repos. **Actually customer PII: 21 files.**
+The gap is the whole story:
+
+| Term class | Verdict |
+|---|---|
+| `CORO`, `MVW` | **False positives.** `CORO` matches "**coro**utine", fictional demo names ("Zane Coro"), and the Italian musical term. `MVW` matched only inside base64 blobs. 0 real in 28 sampled. Wiping these would have corrupted 19 repos of unrelated code. `leakcheck.sh` was separately verified to honour word boundaries correctly — the false positives were an artifact of the search, not the denylist. |
+| `Berkley`, `kowildfe`, `Kunal` | **Zero public exposure.** The most sensitive terms (a colleague's name, the MS alias) were already clean. |
+| `aibast`, `WorkIQ` | Work-name exposure, not customer PII. Largely structural — `aibast` appears in Kody's own public repo *names*. |
+| `Sonosite`, `bchydro`, `marriott`, … | **Real.** Wiped. |
+
+**Wiped and verified (5 public repos):**
+
+- `RAPP-Bible` — the sanitiser scripts hardcoded the customer roster. Roster
+  now injected via `$RAPP_PII_TERMS` / untracked `.pii-terms`
+  (`scripts/pii_terms.py`); **unconfigured now RAISES** rather than yielding an
+  empty banned-list, which would have made `test_no_pii.py` pass vacuously.
+- `RAPP-Network`, `RAR` — a real customer was the worked example throughout the
+  spec, README and agent docstrings, plus an anchor path and a rappid whose sha
+  is a dictionary-reversible hash *of the name*. Neutralised. A hardcoded
+  private-agent roster moved to `$RAPP_EXTRA_PROJECT_AGENTS`.
+- `rapp-god` — vendored copies synced **after** upstream, deliberately: the
+  mono-repo import vacuums upstream trees wholesale, so a fix only here comes
+  straight back on the next import. Exactly the Azure-key failure from the
+  morning.
+- `rapp-agents` — customer name in a test sentinel.
+
+**Verification:** 14 previously-flagged public files re-read by content at
+origin (not via the search index, which lagged ~10 min and reported 7 false
+"still leaking"): **0 still leaking.**
+
+### Two process failures worth recording
+
+1. **I pushed RAPP-Bible past a NO-GO.** That scratch clone had no hook, and I
+   chained `git push` after a gate call without checking its exit. The content
+   was a *pre-existing* work-term, not a new leak, but the discipline failed.
+   Hook installed; re-pushed clean.
+2. **CI caught drift I had not tested.** I soaked the bundled *agent* but never
+   the bundled *SKILL.md*. A `--bundle` export is a derived one-way projection
+   and does **not** round-trip to itself. The invariant that does hold —
+   now enforced over four routes and documented — is that every path out of a
+   bundled export converges on the **byte-exact grail**.
+
+### 🔴 Still open — Kody's call
+
+- **`RAPP-Bible` CI will fail closed** until the roster is provided:
+  `gh secret set PII_TERMS -R kody-w/RAPP-Bible`. That failure is by design.
+- **`RAPP_EXTRA_PROJECT_AGENTS`** must be exported to restore the previous
+  default twin-provisioning behaviour.
+- **`aibast` / `WorkIQ` across ~18 more public repos** — not wiped. `aibast`
+  is in public repo *names*; clearing it means renaming repos and rewriting
+  cross-references. That is a structural decision, not a wipe.
