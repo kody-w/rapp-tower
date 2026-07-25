@@ -232,5 +232,6 @@ rather than fork the source in. Either path is available.
 - **"Not invented here" is real** at this scale, and the capsule touches every
   skill file. The CI-oracle-first sequencing exists to de-risk exactly that.
 - **The lineage story could sour it** if it leads. See the top of this doc.
-- **Licence is NOASSERTION** — see the blocker above. This is the one item that
-  can stop the whole thing, so check it first, not last.
+- **Licence is fine** — plain MIT. Only choice is inbound=outbound (code landing
+  in their tree would be MIT) vs. keeping the canonical implementation
+  Apache-2.0 and having them depend on it.
