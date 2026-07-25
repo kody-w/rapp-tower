@@ -157,6 +157,32 @@ Opening a large PR into a 384k-star project's core is how good ideas get closed
 unread. Answering an open feature request with a working implementation is how
 they get merged.
 
+## Downstream: Microsoft Scout — hit the source first
+
+Scout is an openclaw clone and carries the same shape, so the same drift
+problem exists there by inheritance. Kody's sequencing is right and it is worth
+stating explicitly in any conversation:
+
+> **Fix it at openclaw and Scout inherits it. Fix it at Scout and openclaw
+> doesn't.** A convention adopted upstream flows down to every clone; a
+> convention adopted in one clone is a fork.
+
+So: openclaw first, deliberately. Do not split the effort, and do not pitch
+both in parallel — a maintainer who sees the same proposal in two places reads
+it as spray, not as a considered contribution.
+
+**Hard constraint on the Scout side.** `microsoft/*` is push-forbidden under
+the estate's iron laws, and PRs to Microsoft repos are manual under SAML. So
+Scout is *never* an autonomous action: it is Kody, by hand, through Microsoft's
+internal process. Treat the Scout conversation as a follow-on that only starts
+once openclaw has responded — and note that Scout inheriting it from upstream
+is a much easier internal sell than "adopt my external tool."
+
+There is existing surface area to build on: the RAPP `issue_triage_agent.py`
+already references Scout RFC #3997 and notes that a single-file agent's
+metadata block is what would register as a squad member under Scout's crews
+layout. That is the natural bridge when the time comes.
+
 ## 🔴 Licence blocker — resolve BEFORE any code moves
 
 `gh api repos/openclaw/openclaw` reports **`license.spdx_id = NOASSERTION`** —
