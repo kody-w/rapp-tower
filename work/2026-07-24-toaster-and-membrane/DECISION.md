@@ -332,3 +332,86 @@ whether fidelity held. `toaster.py toast` is the normalising pass; `soak`
 refuses raw bread. The first implementation silently no-opped (read vaults the
 raw bytes, so render restored exactly what toasting meant to replace); the
 idempotence check caught it.
+
+---
+
+## 7. Egg-sync gating — the egg had 12 integrity gates and zero content gates
+
+**The mono repo as `.egg`** (Kody): one artifact that reconstitutes all of RAPP
+on any machine. Read `MONOREPO.md` before touching it — rapp-god is far more
+built than it looks: an authority order, an exact import boundary
+(`git archive HEAD | tar -xf`, blob-ID + SHA-256 verified), 198 pinned source
+trees, content-addressed version frames, and existing `apply_private_quarantine.py`
+/ `staged_secret_scan.py` / `portability.py`.
+
+### Root cause of the 07-23 leak, precisely
+
+`assimilation-integrity` runs **12 check tasks**: semantic, tests, portability,
+licenses, native provenance, source captures, observatory history, archives,
+refs, three wrappers. **Every one verifies where the bytes CAME FROM. Not one
+verified what is IN them.**
+
+`staged_secret_scan.py` already existed *and already had a `--check` mode*. It
+was never a build step, so `MONOREPO.md` §Updating steps 1–2 ("quarantine
+private sources", "review secret-scan findings") were **prose a pass could
+skip**. On 07-23 a pass did. Fourth instance of the same disease tonight:
+a gate that lives in a paragraph gets skipped on the pass where it matters.
+
+**Fixed** — two content gates are now matrix tasks:
+* `staged-secrets` → `staged_secret_scan.py --check`
+* `no-session-captures` → `tools/no_session_captures.py --check` (**new**)
+
+The new gate is deliberately **shape-based, not value-based**. Value scanning
+did *not* stop the M365 capture, because a work identity, a JWK cryptoKey and
+126 tenant GUIDs are not shaped like tokens. You cannot pattern-match the
+identifiers you did not know to look for — but you can refuse the artefact
+class that carries them. Negative-tested both ways.
+
+### The oracle had been red for two days — and it wasn't content
+
+`assimilation-integrity` failed on **every run since `07c77289`, the import
+commit itself**. Root cause was CI config, not content: `native_provenance` and
+`observatory_history` verify against the *previous* commit's tree and registry,
+and `actions/checkout` defaults to a **shallow** clone with only HEAD, so both
+died with `git exit 128`. Proven by running them against a full clone — both
+pass. `fetch-depth: 0` added.
+
+> **A permanently-red oracle is indistinguishable from a newly-red one.**
+> A real content failure could have sat in that noise indefinitely — and one
+> did, for two days.
+
+**Result: 14 jobs green** (was: 3 red + `offline-integrity` skipped, so it had
+never actually run).
+
+### 🔴 The one honest debt: census reconciliation
+
+`stage_materialized --check` still reports
+`index closure differs: missing=3 extra=1 mismatched=34` — **and it is right.**
+
+The closure is a byte-exact census of the imported component roots, and
+`MONOREPO.md` §Exact import boundary states *"Never edit a source clone or an
+existing exact component root"* and *"No authored adapter or index is placed
+inside an imported root."* Tonight I deleted 3 files, added 1
+(`scripts/pii_terms.py`), and modified 34 **inside those roots**.
+
+That was the right order — leaving a public repo serving a JWK cryptoKey and
+126 tenant GUIDs was not an option while waiting for a clean pass — but it
+created real debt, stated rather than papered over:
+
+**Reconciling requires a new reviewed assimilation event** that re-imports the
+corrected upstreams wholesale. Every affected upstream was fixed FIRST tonight
+(rapp-shape-aibast, aibast-agents-library fork, RAR, RAPP-Network, RAPP-Bible,
+rapp-agents) precisely so that pass comes out clean. Patching the ledger by
+hand would defeat the purpose of having a census.
+
+### The egg contract, restated
+
+1. **Complete** — largely there (198 pinned trees, every version retained).
+2. **Clean** — was broken; content gates now enforced at build time.
+3. **Reconstitutable** — `hatch` on a fresh machine. **Still never exec-proofed.**
+   An egg nobody has hatched on a clean box is a claim, not an artifact.
+
+And the symmetry that should drive the next build: **the egg needs the
+toaster's fixed-point property.** Re-assimilating unchanged upstreams must
+produce a zero diff, or the egg drifts from its sources and nobody can tell
+which copy is truth.
