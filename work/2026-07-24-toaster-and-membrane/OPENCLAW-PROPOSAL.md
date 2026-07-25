@@ -26,11 +26,30 @@ The honest result: `autoreview` yielded 1 typed parameter and 5 lifted commands;
 be recovered conservatively. Claiming "this makes your skills deterministic"
 would be false and would be caught in review within a day.
 
-The defensible claim is narrower and stronger:
+**This is NOT a migration tool. Say so explicitly and early.**
+
+A migration tool is one-way and terminal: move from A to B, B wins, A is
+deprecated, there is a cutover and a long tail of half-migrated things. That
+framing would kill this on contact — nobody wants to migrate 5,400 skills, and
+they shouldn't have to.
+
+This is a **dynamic shim**. Nothing moves. Nothing is deprecated. There is no
+cutover. openclaw skills stay `SKILL.md` in `.agents/skills/` forever, and are
+*simultaneously* usable elsewhere, because the canonical record travels inside
+the artifact rather than being converted out of it.
+
+The engineering tell, and it is worth stating to maintainers because it proves
+the claim: **a migration tool would not need byte-exact round-tripping.**
+One-way conversions never come back. The only reason fidelity must hold in
+every direction over unlimited hops is that this is continuous, not
+transitional. The drift oracle exists *because* it is a shim.
+
+The defensible claim:
 
 > The registry has 5,400+ skills and no way to detect when one silently changes
-> meaning as it moves between platforms or gets edited. Here is an oracle for
-> that, and it works on your actual skills today.
+> meaning as it is edited or read by another platform. Here is an oracle for
+> that — and a shim that makes skills portable **without migrating anything**.
+> It works on your actual skills today.
 
 ---
 
@@ -107,7 +126,8 @@ openclaw has enormous distribution and a real skill corpus. RAPP has spent its
 time on the deterministic layer — typed contracts, single-file portable agents,
 provenance. Neither side needs the other to change shape:
 
-- openclaw skills stay `SKILL.md`. No format change, no migration.
+- openclaw skills stay `SKILL.md`, permanently. No format change, no migration,
+  no cutover, no deprecated path. This is the whole point, not a mitigation.
 - The capsule is additive and invisible.
 - The oracle is a CI job that can be adopted or ignored per-repo.
 
@@ -142,13 +162,14 @@ Two live issues are already asking for pieces of this:
 
 | Issue | Why it's the door |
 |---|---|
-| [#45993 — Feature Request: Cross-platform migration tool (migrate export/import)](https://github.com/openclaw/openclaw/issues/45993) | **This is literally the toaster.** Someone has already asked for the thing. Comment there with the working implementation and the evidence. |
+| [#45993 — Feature Request: Cross-platform migration tool (migrate export/import)](https://github.com/openclaw/openclaw/issues/45993) | The right door, but **do not answer it on its own terms.** They asked for a migration tool; the useful reply is that a shim **dissolves the need for one** — skills stay put, no export/import, no cutover. Answering "here's your migration tool" concedes a framing that makes the work look smaller and more disruptive than it is. |
 | [#57091 — Improve Workspace Skill Loading: frontmatter parsing error visibility and validation for SKILL.md](https://github.com/openclaw/openclaw/issues/57091) | Skill validation. `soak` is the accumulation-level companion to their per-file validation. |
 
 Sequence:
 
-1. **Comment on #45993** with the drift argument, the evidence, and a link to
-   the repo. Do not open a competing issue.
+1. **Comment on #45993** — lead with "you may not need a migration tool at
+   all", then the drift argument, the evidence, and the repo link. Do not open
+   a competing issue, and do not let the thread's title define the pitch.
 2. Offer `soak` as an **optional CI workflow** against `.agents/skills/` — pure
    addition, no runtime change, trivially revertible.
 3. Only if that lands, discuss the capsule.

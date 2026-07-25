@@ -125,6 +125,25 @@ no machine-recoverable contract.** They are prose with a name on top. They work
 because a capable model reads them charitably, and they will drift precisely
 because nothing anchors them.
 
+## The fix is not migration
+
+The instinct when formats diverge is to converge them: pick a winner, write a
+migration tool, deprecate the rest. That instinct is wrong here, and expensively
+so. Nobody is going to migrate five thousand skills, and if they did, the next
+platform would restart the problem.
+
+The alternative is a **shim**: leave every artifact exactly where it is, in
+exactly the format its platform wants, and make the canonical record travel
+*inside* it. Formats stop being destinations you move between and become
+simultaneous projections of one underlying thing. There is no cutover because
+nothing is ever migrated.
+
+This is also why the fidelity bar is so much higher than a migration would need.
+A one-way conversion never has to come back, so it can be lossy and nobody
+notices for a year. A shim is crossed continuously, in both directions,
+unboundedly — which is precisely why it has to be byte-exact, and why an
+accumulation oracle is mandatory rather than nice to have.
+
 ## What to do about it
 
 You do not need my tooling. You need three things in whatever you build:
