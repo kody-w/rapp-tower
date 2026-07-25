@@ -204,16 +204,24 @@ already references Scout RFC #3997 and notes that a single-file agent's
 metadata block is what would register as a squad member under Scout's crews
 layout. That is the natural bridge when the time comes.
 
-## 🔴 Licence blocker — resolve BEFORE any code moves
+## Licence — clear, MIT. Not a blocker.
 
-`gh api repos/openclaw/openclaw` reports **`license.spdx_id = NOASSERTION`** —
-GitHub cannot identify a standard licence for the repo. rapp-toaster is
-Apache-2.0.
+`openclaw/openclaw` is **MIT, © OpenClaw Foundation**. GitHub's API reports
+`license.spdx_id = NOASSERTION` only because they append a
+`THIRD_PARTY_NOTICES.md` line after the licence text, which breaks the exact-match
+detector. I flagged that API field as a legal risk instead of reading the file.
+It is a plain MIT licence.
 
-Do not contribute code, and do not accept code from them, until you know what
-their terms actually are. Read their LICENSE/COPYING and CONTRIBUTING before
-step 1 above. Commenting on an issue with a link is safe; landing files is not,
-yet.
+The only real consideration, and it is small: contributions to an MIT project are
+conventionally inbound=outbound, so anything landing in their tree would be MIT
+rather than the toaster's Apache-2.0. Kody owns the copyright and can license his
+own work either way, so this is a choice, not an obstacle.
+
+Worth a moment's thought only because Apache-2.0 carries an express patent grant
+and MIT does not. If that matters, the cleaner shape is to keep the canonical
+implementation in the Apache-2.0 repo and have openclaw depend on or vendor it,
+rather than fork the source in. Either path is available.
+
 
 ## Honest risks
 

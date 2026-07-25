@@ -335,9 +335,13 @@ Small, reversible, and sequenced so it can be evaluated on merit:
 3. **Only then**, a discussion about the capsule — additive, invisible, and
    nothing changes for skill authors.
 
-**One blocker to clear first:** `openclaw/openclaw` reports
-`license.spdx_id = NOASSERTION`. The implementation is Apache-2.0. Nothing
-should move in either direction until the licensing is understood.
+**On licensing:** `openclaw/openclaw` is **MIT, © OpenClaw Foundation** — clear
+and permissive. (GitHub's API says `NOASSERTION` only because a
+`THIRD_PARTY_NOTICES.md` line follows the licence text and breaks its
+exact-match detector.) The implementation here is Apache-2.0. Both are
+permissive and compatible; the only choice to make is whether code lands in
+their tree as MIT, or stays in the Apache-2.0 repo and is depended on — the
+latter preserves an express patent grant that MIT does not carry.
 
 ---
 
