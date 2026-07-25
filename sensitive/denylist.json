@@ -1,20 +1,81 @@
 {
   "schema": "rapp-tower-denylist/1",
   "purpose": "Private canonical denylist for the publishing boundary (iron law 7). Strings that must NEVER appear in anything pushed to a public repo or published surface. This file itself never leaves the tower (private repo). The public conformance suite in rapp-map tests only a synthetic name by design — this is the real list it cannot hold.",
-  "updated": "2026-07-18",
+  "updated": "2026-07-24",
   "match": "case-insensitive substring",
   "entries": [
-    { "term": "CORO", "class": "customer", "note": "word-boundary match advised; short token" },
-    { "term": "Berkley", "class": "customer" },
-    { "term": "Sonosite", "class": "customer" },
-    { "term": "MVW", "class": "customer", "note": "word-boundary match advised; short token" },
-    { "term": "aibast", "class": "work-org" },
-    { "term": "WorkIQ", "class": "work-data" },
-    { "term": "MSFTAIBASTRAPP", "class": "work-repo" },
-    { "term": "RAPPtranscript2Prototype", "class": "work-repo" },
-    { "term": "kowildfe", "class": "work-alias" },
-    { "term": "Kunal", "class": "colleague-pii" }
+    {
+      "term": "CORO",
+      "class": "customer",
+      "note": "word-boundary match advised; short token"
+    },
+    {
+      "term": "Berkley",
+      "class": "customer"
+    },
+    {
+      "term": "Sonosite",
+      "class": "customer"
+    },
+    {
+      "term": "MVW",
+      "class": "customer",
+      "note": "word-boundary match advised; short token"
+    },
+    {
+      "term": "aibast",
+      "class": "work-org"
+    },
+    {
+      "term": "WorkIQ",
+      "class": "work-data"
+    },
+    {
+      "term": "MSFTAIBASTRAPP",
+      "class": "work-repo"
+    },
+    {
+      "term": "RAPPtranscript2Prototype",
+      "class": "work-repo"
+    },
+    {
+      "term": "kowildfe",
+      "class": "work-alias"
+    },
+    {
+      "term": "Kunal",
+      "class": "colleague-pii"
+    },
+    {
+      "term": "marriott",
+      "why": "customer — found 2026-07-24 in the RAPP-Bible PII roster; gate was blind to it"
+    },
+    {
+      "term": "fujifilm",
+      "why": "customer — same source"
+    },
+    {
+      "term": "unilever",
+      "why": "customer — same source"
+    },
+    {
+      "term": "manpowergroup",
+      "why": "customer — same source"
+    },
+    {
+      "term": "MSC",
+      "why": "customer acronym — word-boundary only"
+    },
+    {
+      "term": "bchydro",
+      "regex": "bc[-_. ]?hydro",
+      "why": "customer — one name, many spellings; regex covers every separator variant"
+    }
   ],
-  "word_boundary_terms": ["CORO", "MVW"],
+  "word_boundary_terms": [
+    "CORO",
+    "MVW",
+    "MSC"
+  ],
   "how_to_extend": "Add every new customer/engagement name the moment it first appears in tower context. Removing an entry is a work/ decision."
 }

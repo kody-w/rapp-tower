@@ -28,9 +28,15 @@ for target in "$@"; do
         exit 66
     fi
     # Terms + word-boundary flags come from the denylist; never inline them here.
-    while IFS=$'\t' read -r term boundary; do
+    while IFS=$'\t' read -r term boundary rx; do
         [ -z "$term" ] && continue
-        if [ "$boundary" = "1" ]; then
+        # An entry may carry an explicit `regex`, because literal terms cannot
+        # express separator variants: "bchydro", "bc-hydro", "BC Hydro" and
+        # "bc_hydro" are one name, and enumerating spellings is whack-a-mole
+        # that loses (bc_hydro slipped through exactly that way).
+        if [ -n "$rx" ]; then
+            pattern="$rx"
+        elif [ "$boundary" = "1" ]; then
             pattern="\\b${term}\\b"
         else
             pattern="$term"
@@ -58,7 +64,7 @@ import json, sys
 d = json.load(open(sys.argv[1]))
 wb = set(d.get("word_boundary_terms", []))
 for e in d["entries"]:
-    print(f"{e['term']}\t{1 if e['term'] in wb else 0}")
+    print(f"{e['term']}\t{1 if e['term'] in wb else 0}\t{e.get('regex','')}")
 PY
 )
 done
