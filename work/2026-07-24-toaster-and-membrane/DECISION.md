@@ -253,3 +253,82 @@ origin (not via the search index, which lagged ~10 min and reported 7 false
 - **`aibast` / `WorkIQ` across ~18 more public repos** — not wiped. `aibast`
   is in public repo *names*; clearing it means renaming repos and rewriting
   cross-references. That is a structural decision, not a wipe.
+
+---
+
+## 6. EXHAUSTIVE PII sweep — final (supersedes §5's sampled numbers)
+
+§5 reported a **sample** as if it were proof. Kody called it. Redone properly:
+every public repo, full tree, tarball-streamed, no search index involved.
+
+**Coverage: 371 public repos = 366 scanned + 5 empty (no default branch).**
+**19,889 hits → 100% adjudicated via equivalence classes, 0 dropped.**
+
+Two bugs in my own verification, both caught and fixed before reporting:
+* `gh search code` silently truncates at 100 results — two terms were capped,
+  and its index lagged ~10 min behind pushes. It is not a verification tool.
+* The first classifier dropped **19,143 of 19,145 lines**: it split on 4 tab
+  fields when the sweep emits 3, and `continue`d past everything. It now
+  asserts `classified == parsed` and prints dropped samples, so a silent
+  drop cannot recur.
+
+| Term | Hits | Verdict |
+|---|---|---|
+| `aibast` | 19,532 | **Structural, not wipeable.** Azure RG names, public *repo names*, `microsoft.github.io` install URLs. |
+| `WorkIQ` | 309 | Work-name. |
+| `MSC` | 16 | **Benign.** `"carriers": ["Maersk Line", "MSC"]` in a supply-chain demo — a public shipping line, plus comments *about* word-boundary handling. A false-positive generator. |
+| `Kunal` | 16 | **Real PII** — a colleague's name as an example speaker label. Fixed. |
+| `kowildfe` | 14 | **Real PII** — see below. Fixed. |
+| `RAPPtranscript2Prototype`, `bchydro` | 1, 1 | Fixed. |
+
+I had reported `kowildfe` and `Kunal` as **zero public exposure**. Wrong, from
+the truncated search. Both were public.
+
+### 🔴 A captured authenticated M365 session was public in FOUR repos
+
+`snapshot-1760370929454.html`, 30 MB of signed-in M365 DOM:
+a real `@microsoft.com` identity (90x), a **JWK `cryptoKey` with A256GCM key
+material**, **126 distinct tenant/directory GUIDs**, SharePoint tenant URLs,
+`login_Hint`/`upn`/`oid`/`puid`. No bearer tokens.
+
+Deleted, not sanitised — 30 MB of authenticated DOM cannot be reliably
+redacted, because the identifiers you fail to match are the ones you did not
+know to look for. Nothing loaded it at runtime.
+
+| Repo | Status |
+|---|---|
+| `kody-w/rapp-shape-aibast` | removed, API-verified 404 |
+| `kody-w/aibast-agents-library` (fork) | removed, API-verified 404 |
+| `kody-w/rapp-god` (two vendored copies, different upstreams) | removed, 0 remain |
+| **`microsoft/aibast-agents-library`** | **NOT TOUCHED — serving it publicly, HTTP 200** |
+
+**Microsoft's copy is Kody's to escalate.** Iron law: never push to
+`microsoft/*`. It must go through Microsoft's internal security process — a
+public PR would advertise the leak. Contents verified by fetching their raw
+URL: identical exposure.
+
+Also still open: the blob remains reachable by SHA in the *history* of the
+kody-w repos. HEAD is clean; history purge or privatisation is destructive and
+was not done autonomously.
+
+### Gate change: the denylist is now a RATCHET
+
+Blocking any file containing a denylisted name walled off real PII fixes three
+times — clearest case, `estate-map.json` must name `kody-w/aibast-agents-library`
+**accurately**, so an undecided cleanup blocked a customer-name fix. The
+denylist now fails only when a change **adds** occurrences; pre-existing debt
+is reported. **Secrets are unchanged: fatal everywhere, no baseline.**
+
+Denylist also grew 10 -> 16 entries (7 customer names it had never contained,
+so every run since 07-18 passed them) and gained regex terms, because
+enumerating separator spellings loses — `bc_hydro` slipped past while I was
+adding `bchydro`/`bc-hydro`/`bc hydro` by hand.
+
+### Toaster: raw bread
+
+Kody's doctrine, now enforced: a capsule-less `SKILL.md` is **raw bread** and
+cannot enter the loop — soaking it measures whether two renders agree, not
+whether fidelity held. `toaster.py toast` is the normalising pass; `soak`
+refuses raw bread. The first implementation silently no-opped (read vaults the
+raw bytes, so render restored exactly what toasting meant to replace); the
+idempotence check caught it.
