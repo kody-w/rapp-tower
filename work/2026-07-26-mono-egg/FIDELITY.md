@@ -17,6 +17,9 @@ Artifact: `kody-w/rapp-batcave` → `cubbies/kody-w/eggs/rapp-mono.egg`
 | kernel is byte-identical to source | `cmp` clean against `RAPP/rapp_brainstem/brainstem.py` |
 | an agent installs offline from the bundle | `AccountIntelligenceAgent` copied in → 4 live, 0 quarantined, 0 auto-install |
 | survives the batcave round trip | fresh clone → sha matches sidecar → 11/11 verify checks |
+| **234 of 242 agents import offline** | probe in a wheels-only venv; the other 8 disclosed in `registry/OFFLINE.json` |
+| **the cartridge verifies itself** | `seed/selftest.sh` → offline install, boot, /health, UI, 58 articles, 522 repos, a real agent install → VERDICT good, exit 0 |
+| 5 more registry agents install by copy | 7 live, 0 quarantined, 0 auto-install attempts |
 
 ## Not yet true — the loop's worklist
 
@@ -29,13 +32,17 @@ Artifact: `kody-w/rapp-batcave` → `cubbies/kody-w/eggs/rapp-mono.egg`
 3. **Ecosystem repos absent.** rapp-holo (the interaction standard), rapp-train
    (the release vehicle), the installer, and the tower's own tools are not in
    the cartridge. A rebuild gets the kernel but not the railroad.
-4. **No self-test inside the egg.** A factory device cannot currently prove its
-   own cartridge is good without this repo's tooling. `seed/selftest.sh` should
-   hatch-boot-probe and print a verdict.
+4. ~~No self-test inside the egg~~ — **closed.** `seed/selftest.sh` ships and
+   passes on a fresh hatch.
 5. **Twin chat untested.** The cartridge is meant to hatch "as a local twin";
    the twinchat path has not been exercised against a hatched instance.
-6. **Registry agents unvalidated.** 242 bundled; only one was proven to load.
-   An unknown number may fail to import, or trigger the pip oracle.
+6. ~~Registry agents unvalidated~~ — **closed.** 234/242 import offline; the
+   remaining 8 are disclosed with reasons (`utils.azure_file_storage` needs
+   Azure SDKs; one agent references `BasicSkill`, a legacy name RAPP/1 §11.1
+   abolished, and is simply broken).
+7. **The 8 that cannot work offline are disclosed, not fixed.** One
+   (`fetch_random_wikipedia_article_agent.py`) is broken in the registry
+   itself and should be repaired or retired upstream.
 
 ## Rule for this loop
 

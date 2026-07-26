@@ -11,8 +11,18 @@ STATE="$STATE_DIR/holds.json"
 mkdir -p "$STATE_DIR"
 
 # Session identity: stable per Claude session, else user+tty+shell-pid.
-if [ -n "${CLAUDE_SESSION_ID:-}" ]; then
+# CLAUDE_CODE_SESSION_ID is the variable Claude Code actually sets; the name
+# checked here first was CLAUDE_SESSION_ID, which does not exist, so every
+# invocation fell through to the $PPID branch below. PPID changes on every
+# separate tool call, so a single session looked like a new session each time
+# and the gate raised NO-GO against ITSELF. A gate that cries wolf gets
+# ignored, which is worse than no gate.
+if [ -n "${CLAUDE_CODE_SESSION_ID:-}" ]; then
+    HOLDER="claude:$CLAUDE_CODE_SESSION_ID"
+elif [ -n "${CLAUDE_SESSION_ID:-}" ]; then
     HOLDER="claude:$CLAUDE_SESSION_ID"
+elif [ -n "${RAPP_SESSION_ID:-}" ]; then
+    HOLDER="session:$RAPP_SESSION_ID"
 else
     if TTYNAME=$(tty 2>/dev/null); then TTYNAME="${TTYNAME#/dev/}"; else TTYNAME="notty"; fi
     HOLDER="$(id -un)@$TTYNAME:$PPID"
