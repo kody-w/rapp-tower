@@ -7,6 +7,40 @@
 # standalone pre-push check.
 #   guard.sh <repo-or-tree> [more...]   # exit 1 on any secret/denylist hit
 set -uo pipefail
+TOWER_HOLDS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/holds.sh"
+
+
+# ── FR-10: parallel-session holds ────────────────────────────────────────────
+# On 2026-07-25 two Claude sessions wrote 11 commits to rapp-light and 9 to RAR
+# within two hours, both authoring as the same human. They independently built
+# two different "check 6", and untangling it cost a rebase conflict and two
+# pushes that silently did not happen. holds.sh existed the whole time and said
+# "no active holds" — nobody claimed anything, including me.
+#
+# An advisory protocol that runs on the honour system is not a protocol. The
+# content gate already runs on every push path, so the holds check runs here,
+# where it cannot be forgotten. A collision on cosmetics is what got caught
+# tonight; the one that will not get caught is two sessions editing the same
+# security control.
+check_holds() {
+  local slug="$1" name
+  [ -n "$slug" ] || return 0
+  name="${slug##*/}"
+  [ -x "$TOWER_HOLDS" ] || return 0
+  if ! "$TOWER_HOLDS" check "$name" >/tmp/.guard-holds 2>&1; then
+    echo "${RED}NO-GO${RST}: another session holds '$name'."
+    sed 's/^/    /' /tmp/.guard-holds
+    echo "    Coordinate, or take it over deliberately:"
+    echo "      tools/holds.sh release $name && tools/holds.sh claim $name \"why\""
+    return 1
+  fi
+  # Not held by anyone. Claim it for this session so a concurrent writer sees
+  # us — pushing to a repo IS working on it, and a claim nobody makes is a
+  # claim nobody honours.
+  "$TOWER_HOLDS" claim "$name" "guard: pushing" >/dev/null 2>&1 || true
+  return 0
+}
+
 
 TOWER="$(cd "$(dirname "$0")/.." && pwd)"
 RED=""; GRN=""; YEL=""; RST=""
@@ -117,6 +151,7 @@ if [ "$MODE" = "changed" ]; then
       echo "  would be pushed. Refusing to wave it through (fail closed)."
       exit 1
     fi
+    check_holds "${slug:-}" || exit 1
     echo "${GRN}CLEAN${RST}: nothing to scan ($label — no added/changed files)"; exit 0
   fi
 
@@ -165,6 +200,7 @@ if [ "$MODE" = "changed" ]; then
   fi
   scope="secrets + denylist"
   [ "$vis" = "PRIVATE" ] && scope="secrets only (private destination — denylist N/A)"
+  check_holds "${slug:-}" || exit 1
   echo "${GRN}CLEAN${RST}: $n changed file(s) over $label — safe to push"
   echo "  checked: $scope  [$vis_why]"
   exit 0
