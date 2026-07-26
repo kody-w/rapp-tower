@@ -1,0 +1,74 @@
+name: spine-collect
+# The estate observer runs HERE, in a private repo, and publishes only its
+# derived output to the public rapp-map.
+#
+# Why not in rapp-map itself: rapp-map is PUBLIC. Observing 522 repos of which
+# 142 are private needs a token with `repo` scope, and a token with that scope
+# living in a public repository is reachable by any workflow anyone can cause
+# to run there. That is a credential with write access to the entire estate,
+# one malicious pull request away. The collector therefore lives where the
+# secret can defensibly live, and the public repo receives only facts.
+on:
+  schedule: [{cron: "17 6 * * *"}]
+  workflow_dispatch:
+
+permissions: {contents: read}
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+
+      - name: check out rapp-map (for the tool, overlay and last vertebra)
+        uses: actions/checkout@v4
+        with:
+          repository: kody-w/rapp-map
+          path: map
+          token: ${{ secrets.SPINE_TOKEN }}
+
+      - name: observe the estate
+        working-directory: map
+        env: {GH_TOKEN: "${{ secrets.SPINE_TOKEN }}"}
+        run: python3 tools/spine.py collect -o spine/observations.json
+
+      - name: refuse a partial observation
+        working-directory: map
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          o = json.load(open("spine/observations.json"))
+          v = o.get("visibility", {})
+          print(f"observed {o['count']} repos; private visible: {v.get('private_visible',0)}")
+          if not v.get("token_sees_private"):
+              print("::error::SPINE_TOKEN cannot see private repos — the map "
+                    "would be incomplete. Refusing to publish.")
+              sys.exit(1)
+          PY
+
+      - name: rebuild, gate, snapshot
+        working-directory: map
+        run: |
+          python3 tools/spine.py map spine/observations.json --overlay spine/overlay.json -o estate-map.json
+          python3 tools/spine.py drift spine/observations.json --waivers spine/waivers.json
+          python3 tools/spine.py gate  spine/observations.json --baseline spine/drift-baseline.json --waivers spine/waivers.json --ratchet
+          python3 tools/spine.py snapshot spine/observations.json -o "spine/vertebrae/estate-$(date -u +%F).egg"
+
+      - name: publish the derived map
+        working-directory: map
+        run: |
+          git config user.name  "spine[bot]"
+          git config user.email "spine@users.noreply.github.com"
+          git add estate-map.json spine/
+          git diff --cached --quiet && { echo "estate unchanged"; exit 0; }
+          git commit -m "spine: vertebra $(date -u +%F)
+
+          Derived by tools/spine.py, observed from the private collector.
+          Do not hand-edit estate-map.json — edit spine/overlay.json."
+          for a in 1 2 3; do
+            git push && exit 0
+            git pull --rebase --autostash origin main || exit 1
+          done
+          exit 1
