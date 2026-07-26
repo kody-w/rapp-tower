@@ -182,8 +182,30 @@ class DeclaredAdapter(Adapter):
         }, self.channel)
 
 
+# The local-app fleet: each is a runtime:"twin" rapplication hatched into its own
+# brainstem on its own port. The reference adapter reaches every one unchanged,
+# which is the point of §3 — a twin is not a special case, it is just another
+# neighbour on the wire.
+FLEET = {
+    "rapp-crispy": 7090,   # meetings: denoise, local ASR, notes
+    "rapp-voice": 7091,    # hold-to-talk dictation
+    "rapp-rewind": 7092,   # searchable memory of what was on screen
+    "rapp-shot": 7093,     # screenshots that auto-redact credentials
+}
+
+
+def _fleet_adapters() -> dict:
+    out = {}
+    for name, port in FLEET.items():
+        ad = RappAdapter(port=port)
+        ad.name = name
+        out[name] = ad
+    return out
+
+
 def adapters() -> dict:
     return {
+        **_fleet_adapters(),
         "rapp": RappAdapter(),
         "openrappter": DeclaredAdapter(
             "openrappter",
