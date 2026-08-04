@@ -45,6 +45,20 @@ generate(){
   n_dec="$(grep -hcE '^\| .*NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null | paste -sd+ - | bc 2>/dev/null || echo 0)"
   n_dec="${n_dec:-0}"
 
+  # ---- remote-devices fleet (remote-devices/devices.json + live tailscale status) ----
+  local FLEET_CARDS="" n_dev=0 n_on=0
+  if [ -f "$TOWER/remote-devices/devices.json" ] && command -v jq >/dev/null 2>&1; then
+    local TS; TS="$(tailscale status 2>/dev/null || true)"
+    local name platform host short st cls
+    while IFS=$'\t' read -r name platform host; do
+      n_dev=$((n_dev+1)); short="${host%%.*}"
+      if echo "$TS" | grep -E "[[:space:]]${short}[[:space:]]" | grep -qi offline; then st="OFFLINE"; cls="off"
+      elif echo "$TS" | grep -qE "[[:space:]]${short}[[:space:]]"; then st="ONLINE"; cls="on"; n_on=$((n_on+1))
+      else st="UNKNOWN"; cls="unk"; fi
+      FLEET_CARDS+="<div class=\"dev\"><div class=\"dev-top\"><b>$(printf '%s' "$name" | esc)</b><span class=\"st ${cls}\">${st}</span></div><div class=\"plat\">$(printf '%s' "$platform" | esc)</div><div class=\"host\">$(printf '%s' "$host" | esc)</div><a class=\"connect\" href=\"vnc://${host}\">→ Connect</a></div>"
+    done < <(jq -r '.devices[] | [.name,.platform,.host] | @tsv' "$TOWER/remote-devices/devices.json")
+  fi
+
   # top-3 priority lines (the reds first): leak, runner, unauth flight
   local TOP
   TOP="$(grep -hE '^\| .*NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null \
@@ -88,11 +102,28 @@ h1{font-size:clamp(20px,2.6vw,40px)}
 .detail .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;overflow:auto}
 .detail h3{color:var(--acc);font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
 pre{font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre;overflow-x:auto}
+.fleetbar{flex:0 0 auto;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:clamp(10px,1.4vw,22px)}
+.fleetbar h2{font-size:clamp(12px,1.2vw,19px);letter-spacing:.06em;text-transform:uppercase;color:#fd8ea1;margin-bottom:10px}
+.fleetbar h2 .cnt{color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0;margin-left:8px}
+.fleet{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:clamp(8px,1vw,16px)}
+.dev{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.dev-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dev-top b{font-size:clamp(13px,1.1vw,17px)}
+.st{font-size:10px;font-weight:700;letter-spacing:.05em;white-space:nowrap}
+.st:before{content:"● "}
+.st.on{color:var(--g)}.st.off{color:var(--r)}.st.unk{color:var(--y)}
+.plat{color:var(--mut);font-size:clamp(11px,.9vw,13px)}
+.host{font:11px/1.4 ui-monospace,Menlo,monospace;color:var(--mut);overflow-wrap:anywhere}
+.connect{margin-top:8px;display:block;text-align:center;background:#fd8ea1;color:#1a1a1a;font-weight:700;border-radius:8px;padding:9px 8px;text-decoration:none;font-size:clamp(12px,1vw,15px)}
+.connect:hover{background:#fb7b91}
 </style></head><body>
 <div class="top">
   <div><h1>🗼 RAPP Control Tower</h1><div class="sub">No dream deferred — every person and every AI, working productively.</div></div>
   <div class="stamp">${STAMP}<br><span class="pill">private · local · auto-refresh ${REFRESH}s</span></div>
 </div>
+
+<div class="fleetbar"><h2>🖥 Remote Devices<span class="cnt">${n_on}/${n_dev} online · Tailscale · click to open Screen Sharing</span></h2>
+<div class="fleet">${FLEET_CARDS}</div></div>
 
 <div class="tiles">
   <div class="tile ${c_prod}"><div class="lbl">Prod :7071</div><div class="val">${s_prod}</div></div>
@@ -117,7 +148,7 @@ pre{font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre;overflow-x:auto}
 </div>
 </body></html>
 HTML
-  echo "generated $OUT — prod:$s_prod train:$s_train backup:$s_bkp push:$s_push writers:$s_writ drift:$s_drift leak:$s_leak needs-kody:$n_dec"
+  echo "generated $OUT — fleet:${n_on}/${n_dev} prod:$s_prod train:$s_train backup:$s_bkp push:$s_push writers:$s_writ drift:$s_drift leak:$s_leak needs-kody:$n_dec"
 }
 
 case "${1:-}" in

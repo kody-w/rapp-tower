@@ -138,6 +138,11 @@ second brainstem from the grail checkout). Two scripts are both named
   every open "needs Kody" item as ★-recommended BUTTON cards; each click
   queues a task to `.tower/decisions-queue.jsonl`. A session then runs
   "process the tower decisions queue" (protocol: `work/DECISIONS-QUEUE-PROTOCOL.md`).
+- `tools/dashboard.sh` — the local TV status board (`dashboard.html`). Its MAIN
+  interface is the **Remote Devices fleet** (`remote-devices/` — registry in
+  `devices.json`, live per-device Tailscale status, one-click `vnc://` Screen
+  Sharing onto any fleet machine), followed by the traffic-light tiles and raw
+  tool output. Tailnet hostnames are private — never copy them to public repos.
 
 See `SECURITY.md` for the estate threat model (supply chain / agent trust /
 autonomous writers / credentials) and the confirmed hardening asks.

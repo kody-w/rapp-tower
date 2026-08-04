@@ -1,0 +1,10 @@
+{
+  "comment": "Fleet registry for the Remote Devices rapplication — single source of truth for the tower dashboard's fleet strip. Hosts are Tailscale MagicDNS names; connect scheme is vnc:// (macOS Screen Sharing / TightVNC). Add a device here, then mirror a card in index.html if you want it in the standalone app too.",
+  "devices": [
+    { "name": "Rappter Two",          "platform": "macOS Screen Sharing", "host": "rapptertwo.tail99115f.ts.net" },
+    { "name": "Rappter One",          "platform": "macOS Screen Sharing", "host": "rappterone.tail99115f.ts.net" },
+    { "name": "Kody's Battlestation", "platform": "Windows TightVNC",     "host": "kodysbattlestation.tail99115f.ts.net" },
+    { "name": "Kody's MacBook Pro",   "platform": "macOS Screen Sharing", "host": "kodys-macbook-pro.tail99115f.ts.net" },
+    { "name": "Kody's MacBook Pro 3", "platform": "macOS Screen Sharing", "host": "kodys-macbook-pro-1.tail99115f.ts.net" }
+  ]
+}
