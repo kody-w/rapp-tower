@@ -83,21 +83,51 @@ ITEMS = [
 # openrappter's agent runs each morning and writes the decisions it wants Kody to
 # sign off on (in this same item shape) to ~/.openrappter/tower-decisions.json.
 # They show as cards here alongside the estate items; your click queues the action.
+#
+# Re-read per request, not at import. #1: this block used to run once at module
+# level, so a decision written while the console was open never appeared — the
+# page rendered normally, with an authoritative-looking total, and silently
+# omitted it. An agent surfacing a decision at 03:00 had done nothing if the
+# page had been open since midnight. Cached like fleet_items() so the page stays
+# instant.
 _OR_DECISIONS = os.path.join(os.path.expanduser("~"), ".openrappter", "tower-decisions.json")
-try:
-    with open(_OR_DECISIONS) as _f:
-        _od = json.load(_f)
-    _items = _od.get("items", _od) if isinstance(_od, dict) else _od
-    for _it in (_items or []):
-        if isinstance(_it, dict) and _it.get("id") and _it.get("opts"):
-            _it.setdefault("ctx", "")
-            _it["title"] = "🦖 " + str(_it.get("title", _it["id"]))
-            _it["_source"] = "openrappter"
-            ITEMS.append(_it)
-except FileNotFoundError:
-    pass
-except Exception:
-    pass
+_OR_CACHE = {"mtime": None, "items": []}
+
+def openrappter_items():
+    """Decisions openrappter wants Kody to sign off on, re-read when they change.
+
+    Keyed on mtime rather than a clock: the file changes rarely and a stale
+    read here is exactly the failure being fixed. A missing, half-written or
+    malformed file yields nothing and never takes the console down — it is
+    written by another process, so a torn read is a normal event, not an error.
+    """
+    try:
+        mtime = os.path.getmtime(_OR_DECISIONS)
+    except OSError:
+        _OR_CACHE["mtime"], _OR_CACHE["items"] = None, []
+        return []
+    if mtime == _OR_CACHE["mtime"]:
+        return _OR_CACHE["items"]
+
+    items = []
+    try:
+        with open(_OR_DECISIONS) as f:
+            od = json.load(f)
+        raw = od.get("items", od) if isinstance(od, dict) else od
+        for it in (raw or []):
+            if isinstance(it, dict) and it.get("id") and it.get("opts"):
+                it = dict(it)
+                it.setdefault("ctx", "")
+                it["title"] = "🦖 " + str(it.get("title", it["id"]))
+                it["_source"] = "openrappter"
+                items.append(it)
+    except Exception:
+        # A torn read now would poison the cache until the next write, so do
+        # not record this mtime — try again on the next request.
+        return _OR_CACHE["items"]
+
+    _OR_CACHE["mtime"], _OR_CACHE["items"] = mtime, items
+    return items
 
 # ── fleet decisions (the control-tower pattern, across ALL remote devices) ────
 # Probes every device's satellite tower (remote-devices/satellite/ on :towerPort)
@@ -235,7 +265,7 @@ def badge(status):
 def page():
     ch = load_choices()
     pending, done = [], []
-    all_items = fleet_items() + ITEMS
+    all_items = fleet_items() + openrappter_items() + ITEMS
     for it in all_items:
         rec = ch.get(it["id"], {})
         chosen = rec.get("label")
