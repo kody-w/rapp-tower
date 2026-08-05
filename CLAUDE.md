@@ -143,6 +143,11 @@ second brainstem from the grail checkout). Two scripts are both named
   `devices.json`, live per-device Tailscale status, one-click `vnc://` Screen
   Sharing onto any fleet machine), followed by the traffic-light tiles and raw
   tool output. Tailnet hostnames are private — never copy them to public repos.
+  **Federated**: each device runs `remote-devices/satellite/satellite.py` on
+  :7799 (its own mini tower pointing back to main; main serves the full board
+  at `/tower` + the satellite installer). `tools/decisions.py` probes the
+  fleet and queues per-device decision cards (install satellite / brainstem
+  down / disk low) that a session executes ON that device.
 
 See `SECURITY.md` for the estate threat model (supply chain / agent trust /
 autonomous writers / credentials) and the confirmed hardening asks.

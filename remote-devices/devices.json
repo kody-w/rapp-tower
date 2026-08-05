@@ -1,5 +1,7 @@
 {
-  "comment": "Fleet registry for the Remote Devices rapplication — single source of truth for the tower dashboard's fleet strip. Hosts are Tailscale MagicDNS names; connect scheme is vnc:// (macOS Screen Sharing / TightVNC). Add a device here, then mirror a card in index.html if you want it in the standalone app too.",
+  "comment": "Fleet registry for the Remote Devices rapplication — single source of truth for the tower dashboard's fleet strip AND the satellite towers. Hosts are Tailscale MagicDNS names; vnc:// opens Screen Sharing, http://<host>:<towerPort>/ opens that device's own satellite control tower (satellite/satellite.py), which points back to `main`. Add a device here, then mirror a card in index.html if you want it in the standalone app too.",
+  "main": "kodys-macbook-pro.tail99115f.ts.net",
+  "towerPort": 7799,
   "devices": [
     { "name": "Rappter Two",          "platform": "macOS Screen Sharing", "host": "rapptertwo.tail99115f.ts.net" },
     { "name": "Rappter One",          "platform": "macOS Screen Sharing", "host": "rappterone.tail99115f.ts.net" },

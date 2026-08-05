@@ -15,6 +15,34 @@ open the tower, jump to any other device.
   Mac app serves (`/Applications/Remote Devices.app/Contents/Resources/index.html`,
   sha1 `ebec1565…`). Fully self-contained; open it anywhere.
 
+## The federated layer — satellite towers (`satellite/`)
+
+Every device runs `satellite/satellite.py` on tailnet port **7799** — a
+device-local control tower pointing back to the main one:
+
+- `http://<device>:7799/` — that device's own tower board (its live status +
+  the whole fleet, probed client-side) with a **⬆ Main Tower Board** button.
+- `http://<device>:7799/status.json` — CORS-open live status (brainstem probe,
+  open rapp ports, disk, load). The main dashboard's fleet cards drill into this.
+- On the MAIN device only: `/tower` serves the full `dashboard.html` board
+  fleet-wide (regenerated in the background when stale), and `/install.sh`,
+  `/satellite.py`, `/devices.json` let a new device bootstrap FROM the tower:
+
+      curl -fsSL http://kodys-macbook-pro.tail99115f.ts.net:7799/install.sh | bash
+
+  (macOS: installs to `~/.rapp-tower-satellite` + a KeepAlive LaunchAgent.
+  Windows battlestation runs the same satellite.py via a logon scheduled task.)
+
+**TCC note (macOS):** LaunchAgent python can't read `~/Documents`, so
+`tools/dashboard.sh` publishes a copy of the board + git-rev meta into
+`~/.rapp-tower-satellite/` on every regen; `/tower` serves that copy.
+
+**Fleet decisions:** `tools/decisions.py` probes every device's satellite and
+generates clickable cards — install-the-satellite for uncovered devices,
+brainstem-down, disk-low — alongside the estate items. Your click queues the
+action; a session executes it ON that device (ssh where keyed, else the
+install one-liner over Screen Sharing).
+
 ## Adding a device
 
 1. Add an entry to `devices.json` (`name`, `platform`, `host`) — the dashboard

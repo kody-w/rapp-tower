@@ -45,17 +45,28 @@ generate(){
   n_dec="$(grep -hcE '^\| .*NEEDS-KODY' "$TOWER"/work/*/DECISIONS.md 2>/dev/null | paste -sd+ - | bc 2>/dev/null || echo 0)"
   n_dec="${n_dec:-0}"
 
-  # ---- remote-devices fleet (remote-devices/devices.json + live tailscale status) ----
-  local FLEET_CARDS="" n_dev=0 n_on=0
+  # ---- remote-devices fleet: tailscale liveness + SATELLITE-TOWER drill-down ----
+  # each device runs its own satellite control tower (remote-devices/satellite/) on
+  # :towerPort pointing back to this main one; we probe status.json per device.
+  local FLEET_CARDS="" n_dev=0 n_on=0 n_tower=0
   if [ -f "$TOWER/remote-devices/devices.json" ] && command -v jq >/dev/null 2>&1; then
     local TS; TS="$(tailscale status 2>/dev/null || true)"
-    local name platform host short st cls
+    local TPORT; TPORT="$(jq -r '.towerPort // 7799' "$TOWER/remote-devices/devices.json")"
+    local name platform host short st cls sat twr brain
     while IFS=$'\t' read -r name platform host; do
       n_dev=$((n_dev+1)); short="${host%%.*}"
       if echo "$TS" | grep -E "[[:space:]]${short}[[:space:]]" | grep -qi offline; then st="OFFLINE"; cls="off"
       elif echo "$TS" | grep -qE "[[:space:]]${short}[[:space:]]"; then st="ONLINE"; cls="on"; n_on=$((n_on+1))
       else st="UNKNOWN"; cls="unk"; fi
-      FLEET_CARDS+="<div class=\"dev\"><div class=\"dev-top\"><b>$(printf '%s' "$name" | esc)</b><span class=\"st ${cls}\">${st}</span></div><div class=\"plat\">$(printf '%s' "$platform" | esc)</div><div class=\"host\">$(printf '%s' "$host" | esc)</div><a class=\"connect\" href=\"vnc://${host}\">→ Connect</a></div>"
+      sat="$(curl -fsS -m 5 "http://${host}:${TPORT}/status.json" 2>/dev/null || true)"
+      if [ -n "$sat" ]; then
+        n_tower=$((n_tower+1))
+        brain="$(printf '%s' "$sat" | jq -r '.brainstem // "?"' 2>/dev/null)"
+        twr="<div class=\"twrline on\">⌖ tower up · brainstem ${brain}</div><div class=\"btns\"><a class=\"connect twr\" href=\"http://${host}:${TPORT}/\">⌖ Tower</a><a class=\"connect vnc\" href=\"vnc://${host}\">Screen Share</a></div>"
+      else
+        twr="<div class=\"twrline\">no satellite tower yet</div><div class=\"btns\"><a class=\"connect twr dis\" href=\"http://${host}:${TPORT}/\">⌖ Tower</a><a class=\"connect vnc\" href=\"vnc://${host}\">Screen Share</a></div>"
+      fi
+      FLEET_CARDS+="<div class=\"dev\"><div class=\"dev-top\"><b>$(printf '%s' "$name" | esc)</b><span class=\"st ${cls}\">${st}</span></div><div class=\"plat\">$(printf '%s' "$platform" | esc)</div><div class=\"host\">$(printf '%s' "$host" | esc)</div>${twr}</div>"
     done < <(jq -r '.devices[] | [.name,.platform,.host] | @tsv' "$TOWER/remote-devices/devices.json")
   fi
 
@@ -114,15 +125,21 @@ pre{font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre;overflow-x:auto}
 .st.on{color:var(--g)}.st.off{color:var(--r)}.st.unk{color:var(--y)}
 .plat{color:var(--mut);font-size:clamp(11px,.9vw,13px)}
 .host{font:11px/1.4 ui-monospace,Menlo,monospace;color:var(--mut);overflow-wrap:anywhere}
-.connect{margin-top:8px;display:block;text-align:center;background:#fd8ea1;color:#1a1a1a;font-weight:700;border-radius:8px;padding:9px 8px;text-decoration:none;font-size:clamp(12px,1vw,15px)}
+.btns{display:flex;gap:6px;margin-top:8px}
+.connect{flex:1;display:block;text-align:center;background:#fd8ea1;color:#1a1a1a;font-weight:700;border-radius:8px;padding:9px 8px;text-decoration:none;font-size:clamp(12px,1vw,15px)}
 .connect:hover{background:#fb7b91}
+.connect.vnc{background:transparent;color:var(--fg);border:1px solid var(--bd)}
+.connect.vnc:hover{border-color:#fd8ea1;background:transparent}
+.connect.dis{opacity:.35}
+.twrline{font-size:11px;margin-top:2px;color:var(--mut)}
+.twrline.on{color:var(--g)}
 </style></head><body>
 <div class="top">
   <div><h1>🗼 RAPP Control Tower</h1><div class="sub">No dream deferred — every person and every AI, working productively.</div></div>
   <div class="stamp">${STAMP}<br><span class="pill">private · local · auto-refresh ${REFRESH}s</span></div>
 </div>
 
-<div class="fleetbar"><h2>🖥 Remote Devices<span class="cnt">${n_on}/${n_dev} online · Tailscale · click to open Screen Sharing</span></h2>
+<div class="fleetbar"><h2>🖥 Remote Devices<span class="cnt">${n_on}/${n_dev} online · ${n_tower}/${n_dev} satellite towers · ⌖ drills into that device's own control tower</span></h2>
 <div class="fleet">${FLEET_CARDS}</div></div>
 
 <div class="tiles">
@@ -148,7 +165,13 @@ pre{font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre;overflow-x:auto}
 </div>
 </body></html>
 HTML
-  echo "generated $OUT — fleet:${n_on}/${n_dev} prod:$s_prod train:$s_train backup:$s_bkp push:$s_push writers:$s_writ drift:$s_drift leak:$s_leak needs-kody:$n_dec"
+  # publish to the satellite tower (LaunchAgent python can't read ~/Documents — TCC),
+  # so /tower on :7799 serves this copy fleet-wide
+  if [ -d "$HOME/.rapp-tower-satellite" ]; then
+    cp "$OUT" "$HOME/.rapp-tower-satellite/dashboard.html" 2>/dev/null || true
+    printf '{"git":"%s","generated":"%s"}\n' "$(git -C "$TOWER" rev-parse --short HEAD 2>/dev/null)" "$(date '+%Y-%m-%dT%H:%M:%S')" > "$HOME/.rapp-tower-satellite/satellite-meta.json" 2>/dev/null || true
+  fi
+  echo "generated $OUT — fleet:${n_on}/${n_dev} towers:${n_tower}/${n_dev} prod:$s_prod train:$s_train backup:$s_bkp push:$s_push writers:$s_writ drift:$s_drift leak:$s_leak needs-kody:$n_dec"
 }
 
 case "${1:-}" in

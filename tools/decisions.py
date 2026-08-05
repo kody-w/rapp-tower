@@ -12,7 +12,7 @@ BUTTON cards. Clicking a button writes the choice to .tower/decisions-queue.json
 Local only, no deps (Python stdlib). The tower is PRIVATE — this never publishes.
 Run:  tools/decisions.py   then open  http://localhost:7788
 """
-import json, os, datetime, html
+import json, os, datetime, html, re, subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 TOWER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +23,19 @@ PORT = int(os.environ.get("DECISIONS_PORT", "7788"))
 # Each item: id, title, context, options[{label, rec?, action}]
 # `action` is the instruction a Claude session executes when this choice is queued.
 ITEMS = [
-  {"id":"google-keys","title":"3 public Google API-key leaks (files already wiped)","ctx":"mars-barn-opus, gemini-cli-tips, TheMatrix — leaked files purged/redacted from history by Fable; keys still need revocation in Google Cloud Console.","opts":[
-    {"label":"I revoked all 3 — close the alerts","rec":True,"action":"Close the open secret-scanning alerts on kody-w/mars-barn-opus, gemini-cli-tips, TheMatrix with resolution=revoked."},
-    {"label":"Not yet — remind me later","action":"Leave the 3 Google-key alerts open; add a reminder to revoke them in Google Cloud Console."}]},
+  # The three Google-key leaks are individually flaggable: a `resolve` option marks
+  # the item done IMMEDIATELY (no AI session needed), rewrites the NEEDS-KODY row in
+  # the standing-oddities ledger (which clears the dashboard's red strip on next
+  # regen), and best-effort closes the repo's open secret-scanning alerts via `gh`.
+  {"id":"leak-mars-barn-opus","title":"Google API-key leak — mars-barn-opus","ctx":"Committed .playwright-profile/ browser cache; dir purged from all 526 commits + force-pushed by Fable. Flag resolved once you've revoked the key in Google Cloud Console.","resolve_match":"mars-barn-opus","gh_repo":"kody-w/mars-barn-opus","opts":[
+    {"label":"✓ Key revoked — flag resolved","rec":True,"resolve":True,"action":"Resolved by Kody in the console; secret-scanning alerts closed (resolution=revoked)."},
+    {"label":"Not yet — keep open","action":"Leave the mars-barn-opus Google-key alert open."}]},
+  {"id":"leak-gemini-cli-tips","title":"Google API-key leak — gemini-cli-tips","ctx":".claude/commands/gemini-power.md; key redacted across all history + force-pushed by Fable. Flag resolved once you've revoked the key in Google Cloud Console.","resolve_match":"gemini-cli-tips","gh_repo":"kody-w/gemini-cli-tips","opts":[
+    {"label":"✓ Key revoked — flag resolved","rec":True,"resolve":True,"action":"Resolved by Kody in the console; secret-scanning alerts closed (resolution=revoked)."},
+    {"label":"Not yet — keep open","action":"Leave the gemini-cli-tips Google-key alert open."}]},
+  {"id":"leak-thematrix","title":"Google API-key leak — TheMatrix","ctx":".knowledge-bases/kody-voice/QUICK_IMAGE_PROMPTS.md; key redacted across all history + force-pushed by Fable. Flag resolved once you've revoked the key in Google Cloud Console.","resolve_match":"TheMatrix","gh_repo":"kody-w/TheMatrix","opts":[
+    {"label":"✓ Key revoked — flag resolved","rec":True,"resolve":True,"action":"Resolved by Kody in the console; secret-scanning alerts closed (resolution=revoked)."},
+    {"label":"Not yet — keep open","action":"Leave the TheMatrix Google-key alert open."}]},
   {"id":"runner","title":"Self-hosted Actions runner = RCE on this laptop","ctx":"A runner for microsoft/RAPPtranscript2Prototype runs on the root-of-trust laptop; anyone with write to that repo gets code execution here.","opts":[
     {"label":"Decommission it","rec":True,"action":"Unregister/remove the self-hosted GitHub Actions runner (actions.runner.kowildfe_microsoft-RAPPtranscript2Prototype) from this laptop and bootout its launchd agent."},
     {"label":"Relocate it off this machine","action":"Document a plan to move the self-hosted runner to a non-root-of-trust machine; disable it here meanwhile."},
@@ -89,6 +99,110 @@ except FileNotFoundError:
 except Exception:
     pass
 
+# ── fleet decisions (the control-tower pattern, across ALL remote devices) ────
+# Probes every device's satellite tower (remote-devices/satellite/ on :towerPort)
+# over Tailscale and generates decision cards: install the satellite where it is
+# missing, plus per-device findings (brainstem down, disk low). The processing
+# session executes the chosen action ON that device — ssh where keyed
+# (battlestation), otherwise via the main tower's install one-liner + Screen
+# Sharing. Cached 30s so the page stays instant.
+_FLEET_CACHE = {"ts": 0.0, "items": []}
+
+def _probe(host, port):
+    from urllib.request import urlopen
+    try:
+        with urlopen(f"http://{host}:{port}/status.json", timeout=1.8) as r:
+            return json.loads(r.read())
+    except Exception:
+        return None
+
+def fleet_items():
+    import time as _t
+    if _t.time() - _FLEET_CACHE["ts"] < 30:
+        return _FLEET_CACHE["items"]
+    items = []
+    try:
+        reg = json.load(open(os.path.join(TOWER, "remote-devices", "devices.json")))
+    except Exception:
+        reg = {"devices": []}
+    port = reg.get("towerPort", 7799)
+    main = reg.get("main", "")
+    from concurrent.futures import ThreadPoolExecutor
+    devs = reg.get("devices", [])
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        sts = list(ex.map(lambda d: _probe(d["host"], port), devs))
+    for d, st in zip(devs, sts):
+        short = d["host"].split(".")[0]
+        if st is None:
+            items.append({"id": f"fleet-install-{short}",
+                "title": f"🖥 Install the RAPP control tower satellite on {d['name']}?",
+                "ctx": f"{d['host']} has no satellite tower answering on :{port}. Installing one makes it a full member of the federated tower — its own board, live status, drill-down from the main board, and a target the tower can act on.",
+                "opts": [
+                    {"label": "Install it (via Tailscale)", "rec": True,
+                     "action": f"Install the tower satellite on {d['name']} ({d['host']}): if `ssh {short}` is keyed, copy remote-devices/satellite/ files + write satellite.json + persistent service and verify http://{d['host']}:{port}/status.json. If no ssh, walk Kody through it over Screen Sharing (vnc://{d['host']}): run  curl -fsSL http://{main}:{port}/install.sh | bash  on that device, then verify from the main tower."},
+                    {"label": "Not this device", "action": f"Skip installing the satellite on {d['name']}; leave the card cleared for this round."},
+                    {"label": "Remove from fleet", "action": f"Remove {d['name']} ({d['host']}) from remote-devices/devices.json and the Remote Devices app card."}]})
+            continue
+        if st.get("brainstem") != "up":
+            items.append({"id": f"fleet-brainstem-{short}",
+                "title": f"🖥 Brainstem DOWN on {d['name']}",
+                "ctx": f"Satellite tower on {d['host']} is up but nothing answers on its :7071. If this device should serve a brainstem, start it; if not, record that it deliberately doesn't run one.",
+                "opts": [
+                    {"label": "Start / install the brainstem there", "rec": True,
+                     "action": f"On {d['name']} ({d['host']}): start the brainstem on :7071 (or install via the public one-liner if absent), via ssh if keyed else Screen Sharing; verify the satellite reports brainstem=up."},
+                    {"label": "This device doesn't run one", "action": f"Record in remote-devices/README.md that {d['name']} intentionally runs no brainstem."}]})
+        disk = st.get("disk_free_gb")
+        if isinstance(disk, (int, float)) and disk < 10:
+            items.append({"id": f"fleet-disk-{short}",
+                "title": f"🖥 Disk critically low on {d['name']} — {disk}GB free",
+                "ctx": f"The satellite on {d['host']} reports {disk}GB free. Below ~10GB things start failing (updates, temp files, the brainstem's memory writes).",
+                "opts": [
+                    {"label": "Investigate + clean it up", "rec": True,
+                     "action": f"On {d['name']} ({d['host']}): identify the biggest space consumers (via ssh if keyed, else guide over Screen Sharing) and propose a cleanup — show findings before deleting anything."},
+                    {"label": "Known — leave it", "action": f"Record the low-disk state on {d['name']} as known/accepted."}]})
+    _FLEET_CACHE.update(ts=_t.time(), items=items)
+    return items
+
+def resolve_ledger(match):
+    """Rewrite NEEDS-KODY rows containing `match` in every work/*/DECISIONS.md
+    to ✅ RESOLVED — this is what clears the dashboard's red strip + count."""
+    stamp = datetime.date.today().isoformat()
+    hit = 0
+    import glob
+    for path in glob.glob(os.path.join(TOWER, "work", "*", "DECISIONS.md")):
+        with open(path) as f: text = f.read()
+        out = []
+        for line in text.splitlines(keepends=True):
+            if match in line and "NEEDS-KODY" in line:
+                new = re.sub(r"\*\*NEEDS-KODY:?[^*]*\*\*",
+                             f"✅ RESOLVED {stamp} (Kody, decisions console)", line)
+                if new != line: hit += 1
+                line = new
+            out.append(line)
+        if hit:
+            with open(path, "w") as f: f.write("".join(out))
+    return hit
+
+def gh_close_alerts(repo):
+    """Best-effort: close every open secret-scanning alert on `repo` as revoked."""
+    try:
+        r = subprocess.run(["gh","api",f"repos/{repo}/secret-scanning/alerts?state=open",
+                            "--jq",".[].number"], capture_output=True, text=True, timeout=25)
+        nums = [n for n in r.stdout.split() if n.strip().isdigit()]
+    except Exception:
+        return -1, []
+    closed = []
+    for n in nums:
+        try:
+            p = subprocess.run(["gh","api","-X","PATCH",
+                                f"repos/{repo}/secret-scanning/alerts/{n}",
+                                "-f","state=resolved","-f","resolution=revoked"],
+                               capture_output=True, text=True, timeout=25)
+            if p.returncode == 0: closed.append(n)
+        except Exception:
+            pass
+    return len(nums), closed
+
 def load_choices():
     d = {}
     if os.path.exists(QUEUE):
@@ -121,7 +235,8 @@ def badge(status):
 def page():
     ch = load_choices()
     pending, done = [], []
-    for it in ITEMS:
+    all_items = fleet_items() + ITEMS
+    for it in all_items:
         rec = ch.get(it["id"], {})
         chosen = rec.get("label")
         status = rec.get("status", "queued" if chosen else None)
@@ -141,12 +256,13 @@ def page():
                 sel = "sel" if chosen == o["label"] else ""
                 rc = "rec" if o.get("rec") else ""
                 star = "★ " if o.get("rec") else ""
+                rz = ' data-resolve="1"' if o.get("resolve") else ""
                 btns.append(
                     f'<button class="opt {rc} {sel}" '
                     f'data-id="{html.escape(it["id"], quote=True)}" '
                     f'data-label="{html.escape(o["label"], quote=True)}" '
                     f'data-action="{html.escape(o["action"], quote=True)}" '
-                    f'data-title="{html.escape(it["title"], quote=True)}">'
+                    f'data-title="{html.escape(it["title"], quote=True)}"{rz}>'
                     f'{star}{html.escape(o["label"])}</button>')
             pnote = (f'<div class="acted pendact">→ next: {html.escape(act)}</div>' if chosen and act else '')
             pending.append(
@@ -157,7 +273,7 @@ def page():
     ph = (f'<h2 class="sec">⚡ Still needs you · {len(pending)}</h2>' + "".join(pending)) if pending else '<h2 class="sec">🎉 Nothing left needs you</h2>'
     dh = (f'<h2 class="sec dimh">✅ Done · {len(done)}</h2>' + "".join(done)) if done else ''
     return (HTML.replace("{{PENDING}}", ph).replace("{{DONE}}", dh)
-                .replace("{{N}}", str(len(ITEMS))).replace("{{D}}", str(len(done)))
+                .replace("{{N}}", str(len(all_items))).replace("{{D}}", str(len(done)))
                 .replace("{{P}}", str(len(pending))))
 
 HTML = """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -201,9 +317,10 @@ async function choose(b){
   b.textContent='… saving';
   try{
     const r=await fetch('/choose',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({id:d.id,label:d.label,action:d.action,title:d.title})});
+      body:JSON.stringify({id:d.id,label:d.label,action:d.action,title:d.title,resolve:!!d.resolve})});
     if(!r.ok) throw new Error('HTTP '+r.status);
-    document.getElementById('stat').textContent='✓ queued: '+d.label;
+    const j=await r.json();
+    document.getElementById('stat').textContent=j.note?('✓ '+j.note):('✓ queued: '+d.label);
     location.reload();
   }catch(e){
     document.getElementById('stat').textContent='✗ error: '+e.message+' (is the server still running?)';
@@ -227,9 +344,21 @@ class H(BaseHTTPRequestHandler):
         data = json.loads(self.rfile.read(n) or b"{}")
         rec = {"id":data["id"],"title":data.get("title",""),"label":data["label"],
                "action":data["action"],"ts":datetime.datetime.now().isoformat(timespec="seconds"),"status":"queued"}
+        note = ""
+        item = next((i for i in ITEMS if i["id"] == data.get("id")), None)
+        if data.get("resolve") and item:
+            # Kody flagged it resolved: done NOW — no AI session in the loop.
+            rows = resolve_ledger(item.get("resolve_match", "")) if item.get("resolve_match") else 0
+            note = f"resolved — {rows} ledger row(s) cleared"
+            if item.get("gh_repo"):
+                total, closed = gh_close_alerts(item["gh_repo"])
+                if total == -1:  note += "; gh alert check failed (close manually)"
+                elif total == 0: note += "; no open alerts on " + item["gh_repo"]
+                else:            note += f"; closed {len(closed)}/{total} alert(s) on " + item["gh_repo"]
+            rec["status"] = "done — " + note
         save_choice(rec)
         self.send_response(200); self.send_header("Content-Type","application/json"); self.end_headers()
-        self.wfile.write(b'{"ok":true}')
+        self.wfile.write(json.dumps({"ok": True, "note": note}).encode())
 
 if __name__ == "__main__":
     print(f"Decision console → http://localhost:{PORT}   (queue: {QUEUE})")
