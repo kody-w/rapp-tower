@@ -1,0 +1,25 @@
+═══ brainstem local preflight ═══ scenario=upgrade auth=false port=7098
+  sandbox: /tmp/brainstem-preflight-7AWq8I
+  ✓ seeded production baseline (62ba2ee) + user files
+
+── running install.sh (log: /tmp/brainstem-preflight-7AWq8I/install.log) ──
+  ✓ health: status + candidate version + agents
+  ✓ web UI serves
+  ✓ /models responds
+  ✓ /chat rejects bad input as JSON
+  ✓ custom agent survived upgrade
+  ✓ soul.md survived upgrade
+  ✓ .env survived upgrade
+  ✓ custom agent loads in upgraded server
+  ✓ upgraded to candidate v0.6.16
+  ✓ unit suite green inside the installed copy (224 passed, 17 subtests passed in 2.11s)
+
+═══ preflight result: 10 passed, 0 failed ═══
+tests/preflight_local.sh: line 50: 29068 Terminated: 15          ( export HOME="$FAKE_HOME"; export PATH="$SHIMS:$PATH"; export PORT="$PORT"; if [ "$(uname)" = "Darwin" ]; then
+    exec script -q "$LOG" bash "$REPO_ROOT/install.sh" < /dev/null > /dev/null 2>&1;
+else
+    exec script -qec "bash '$REPO_ROOT/install.sh'" "$LOG" < /dev/null > /dev/null 2>&1;
+fi )
+
+  Sandbox kept for inspection: /tmp/brainstem-preflight-7AWq8I
+  (installer log: /tmp/brainstem-preflight-7AWq8I/install.log — rm -rf when done)

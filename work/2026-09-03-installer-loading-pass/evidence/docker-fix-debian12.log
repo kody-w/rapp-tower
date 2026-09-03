@@ -1,0 +1,15 @@
+PRE: python3= git=
+EXIT=0 TOTAL=132s
+  ⚠ Python 3.11+ not found
+  ✓ Python 3.11 installed
+  ⚠ Git not found, installing...
+  ✓ Git 2.39.5 installed
+  ⚠ GitHub CLI not found, installing...
+  ✓ GitHub CLI installed
+  ✓ Source code ready
+  ✓ Virtual environment ready
+  ✓ Dependencies installed
+  ✓ CLI installed to /root/.local/bin/brainstem
+  ✓ RAPP Brainstem v0.6.16 installed!
+  ✓ Brainstem runtime is ready (launch skipped)
+SERVER: {"version":"0.6.16"}

@@ -1,0 +1,14 @@
+PRE: python3=/usr/bin/python3 git=/usr/bin/git
+EXIT=0 TOTAL=36s
+  ✓ Python 3.12 (python3.12)
+  ✓ Git 2.43.0
+  ⚠ GitHub CLI not found, installing...
+  ✓ GitHub CLI installed
+  ✓ Source code ready
+  Installing the Debian/Ubuntu venv package for Python 3.12...
+  ✓ Virtual environment ready
+  ✓ Dependencies installed
+  ✓ CLI installed to /root/.local/bin/brainstem
+  ✓ RAPP Brainstem v0.6.16 installed!
+  ✓ Brainstem runtime is ready (launch skipped)
+SERVER: {"version":"0.6.16"}

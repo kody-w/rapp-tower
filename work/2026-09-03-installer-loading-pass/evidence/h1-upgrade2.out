@@ -1,0 +1,59 @@
+
+
+  🧠 RAPP Brainstem
+
+  Local-first AI agent server
+  Powered by GitHub Copilot — no API keys needed
+
+Checking for updates...
+  Local version:  0.6.15
+  Remote version: 0.6.16
+  ⬆ Upgrade available: 0.6.15 → 0.6.16
+Checking prerequisites...
+  ✓ Python 3.11 (python3.11)
+  ✓ Git 2.50.1
+  ✓ GitHub CLI 2.96.0
+
+Installing RAPP Brainstem...
+  Limiting the install source to the Brainstem runtime...
+  ✓ Solution bundles excluded from installer updates
+  Local:  v0.6.15
+  Target: v0.6.16
+  Switching v0.6.15 → v0.6.16...
+  ✓ Backed up soul, agents, config
+  ✓ Framework updated
+  ⚠ Preserved custom-agent name collision at /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/recovery/agent-collisions-20260903-110039/hacker_news_agent.py
+  ✓ Restored custom agents + soul + config
+  ✓ Upgrade complete: v0.6.16
+  ✓ Source code ready
+  ✓ Virtual environment OK
+
+Installing dependencies...
+  [..] Installing Python dependencies...
+Looking in indexes: https://packagefeedproxy.microsoft.io/pypi/simple/
+Requirement already satisfied: flask>=2.0.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from -r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (3.1.3)
+Requirement already satisfied: flask-cors>=4.0.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from -r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 2)) (6.0.5)
+Requirement already satisfied: requests>=2.28.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from -r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 3)) (2.34.2)
+Requirement already satisfied: python-dotenv>=1.0.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from -r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 4)) (1.2.3)
+Requirement already satisfied: pyzipper>=0.3.6 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from -r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 5)) (0.4.0)
+Requirement already satisfied: blinker>=1.9.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (1.9.0)
+Requirement already satisfied: click>=8.1.3 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (8.5.0)
+Requirement already satisfied: itsdangerous>=2.2.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (2.2.0)
+Requirement already satisfied: jinja2>=3.1.2 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (3.1.6)
+Requirement already satisfied: markupsafe>=2.1.1 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (3.0.3)
+Requirement already satisfied: werkzeug>=3.1.0 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from flask>=2.0.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 1)) (3.1.8)
+Requirement already satisfied: charset_normalizer<4,>=2 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from requests>=2.28.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 3)) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from requests>=2.28.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 3)) (3.19)
+Requirement already satisfied: urllib3<3,>=1.26 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from requests>=2.28.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 3)) (2.7.0)
+Requirement already satisfied: certifi>=2023.5.7 in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from requests>=2.28.0->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 3)) (2026.7.22)
+Requirement already satisfied: pycryptodomex in /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/venv/lib/python3.11/site-packages (from pyzipper>=0.3.6->-r /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.brainstem/src/rapp_brainstem/requirements.txt (line 5)) (3.23.0)
+  ✓ Dependencies installed
+
+Installing CLI...
+  ✓ CLI installed to /private/tmp/claude-501/-Users-kodywildfeuer/77a7274a-314d-4a62-935c-e359d89eb7b5/scratchpad/h1/.local/bin/brainstem
+
+═══════════════════════════════════════════════════
+  ✓ RAPP Brainstem v0.6.16 installed!
+═══════════════════════════════════════════════════
+
+  ✓ Brainstem runtime is ready (launch skipped)
