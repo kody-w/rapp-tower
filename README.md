@@ -1,5 +1,9 @@
 # 🗼 rapp-tower — mission control for the RAPP ecosystem
 
+<!-- rapp1:network-header:start -->
+[![RAPP/1](https://kody-w.github.io/rapp-hive-public/portfolio/badges/rapp-tower.svg)](https://github.com/kody-w/rapp-hive-public/blob/main/portfolio/repos/rapp-tower.md) · **New to RAPP?** [Start here: get your Brainstem →](https://github.com/kody-w/rapp-installer#start-here)
+<!-- rapp1:network-header:end -->
+
 The repo where AI-first sessions **land**. Full command over the estate —
 the train, the shapes, the standards, every checkout's role and touch
 rules — without squatting in a production repo. Nothing here ships; the
