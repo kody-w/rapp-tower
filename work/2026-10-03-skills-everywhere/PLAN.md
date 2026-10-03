@@ -1,3 +1,10 @@
+# DECISION (2026-10-03, later): not building this
+
+After review: it adds machinery users would have to be taught. What already exists is enough:
+paste a SKILL.md into any Brainstem chat to use it (verified on :7071, stock kernel);
+`rapp-skills` already wraps agent.py in SKILL.md and back for keeping or sharing.
+Revisit only when a real user hits a wall. The plan below is kept as the record.
+
 # Skills everywhere: share a skill, run an agent
 
 Status: plan, not built. 2026-10-03. Grail untouched throughout.
